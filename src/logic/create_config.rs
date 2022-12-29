@@ -48,18 +48,8 @@ pub fn create_config() -> Result<(), Error> {
         let mut input = input.split_whitespace();
         let mut error = CreateConfigError::None;
 
-        let mut time = Time {
-            hour: 0,
-            minute: 0,
-            second: 0,
-        };
-
-        let mut command = Command {
-            command: String::from(""),
-            parameters: String::from(""),
-            audio: false,
-            notify: -1,
-        };
+        let mut time = Time::default();
+        let mut command = Command::default();
 
         match input.next() {
             None => error = CreateConfigError::StdIn,

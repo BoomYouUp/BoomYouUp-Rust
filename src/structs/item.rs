@@ -2,13 +2,13 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::ops::{Add, Sub};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Item {
     pub time: Time,
     pub commands: Vec<Command>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy, Default, Serialize, Deserialize)]
 pub struct Time {
     pub hour: u8,
     pub minute: u8,
@@ -37,9 +37,9 @@ impl Add for Time {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        let mut second = self.second + other.second;
-        let mut minute = self.minute + other.minute;
-        let mut hour = self.hour + other.hour;
+        let mut second = self.second as i32 + other.second as i32;
+        let mut minute = self.minute as i32 + other.minute as i32;
+        let mut hour = self.hour as i32 + other.hour as i32;
 
         while second >= 60 {
             second -= 60;
@@ -56,9 +56,9 @@ impl Add for Time {
         }
 
         Time {
-            hour,
-            minute,
-            second,
+            hour: hour as u8,
+            minute: minute as u8,
+            second: second as u8,
         }
     }
 }
@@ -67,9 +67,9 @@ impl Sub for Time {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
-        let mut second = self.second as i16 - other.second as i16;
-        let mut minute = self.minute as i16 - other.minute as i16;
-        let mut hour = self.hour as i16 - other.hour as i16;
+        let mut second = self.second as i32 - other.second as i32;
+        let mut minute = self.minute as i32 - other.minute as i32;
+        let mut hour = self.hour as i32 - other.hour as i32;
 
         while second < 0 {
             second += 60;
@@ -121,12 +121,12 @@ impl Time {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Command {
     pub command: String,
     pub parameters: String,
     pub audio: bool,
-    pub notify: i8,
+    pub notify: isize,
 }
 
 pub fn add_command(config: &mut Vec<Item>, time: Time, command: Command, search_index: usize) {
