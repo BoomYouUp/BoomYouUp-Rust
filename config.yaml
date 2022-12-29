@@ -1,0 +1,31 @@
+- time:
+    hour: 19
+    minute: 19
+    second: 9
+  commands:
+  - command: test
+    parameters: -a -b
+    audio: false
+    notify: -1
+- time:
+    hour: 19
+    minute: 19
+    second: 10
+  commands:
+  - command: nmjj
+    parameters: ''
+    audio: false
+    notify: 1
+- time:
+    hour: 23
+    minute: 20
+    second: 0
+  commands:
+  - command: 1.mp3
+    parameters: ''
+    audio: false
+    notify: 0
+  - command: jntm
+    parameters: -b -b
+    audio: false
+    notify: 127
