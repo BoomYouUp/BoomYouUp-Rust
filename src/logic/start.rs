@@ -26,11 +26,9 @@ pub fn start() -> Result<(), Error> {
     print_config(&config);
     parse_config(&mut config);
 
-    let mut time = Time {
-        hour: 0,
-        minute: 0,
-        second: 0,
-    };
+    println!();
+
+    let mut time = Time::default();
     let mut next: &Item = &config[0];
 
     update_system_time(&mut time);
