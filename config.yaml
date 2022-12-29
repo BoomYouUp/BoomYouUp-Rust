@@ -1,4 +1,17 @@
 - time:
+    hour: 17
+    minute: 30
+    second: 0
+  commands:
+  - command: 1.mp3
+    parameters: ''
+    audio: true
+    notify: 0
+  - command: jntm
+    parameters: -b -b
+    audio: false
+    notify: 127
+- time:
     hour: 19
     minute: 19
     second: 9
@@ -16,16 +29,3 @@
     parameters: ''
     audio: false
     notify: 1
-- time:
-    hour: 23
-    minute: 20
-    second: 0
-  commands:
-  - command: 1.mp3
-    parameters: ''
-    audio: false
-    notify: 0
-  - command: jntm
-    parameters: -b -b
-    audio: false
-    notify: 127

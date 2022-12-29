@@ -1,9 +1,9 @@
 use crate::structs::item::{Command, Item, Time};
 use crate::{add_command_reverse, pcstr, APP_NAME, CONFIG_PATH};
-use rodio::{Decoder, OutputStream, Source};
-use std::fs;
+use rodio::{Decoder, OutputStream, Sink};
 use std::fs::File;
 use std::io::{BufReader, Error};
+use std::{fs, thread};
 use windows::core::PCSTR;
 use windows::Win32::Foundation::{GetLastError, HWND, SYSTEMTIME};
 use windows::Win32::System::SystemInformation::GetLocalTime;
@@ -61,29 +61,23 @@ pub fn start() -> Result<(), Error> {
                     }
                 } else if command.audio {
                     println!("播放音频：{}", command.command);
-                    match OutputStream::try_default() {
-                        Ok((_stream, handle)) => match File::open(command.command.clone()) {
-                            Ok(file) => {
-                                let file = BufReader::new(file);
-                                match Decoder::new(file) {
+                    let command_copy = command.command.clone();
+                    thread::spawn(|| match OutputStream::try_default() {
+                        Ok((_stream, handle)) => match Sink::try_new(&handle) {
+                            Ok(sink) => match File::open(command_copy) {
+                                Ok(file) => match Decoder::new(BufReader::new(file)) {
                                     Ok(source) => {
-                                        if let Err(e) = handle.play_raw(source.convert_samples()) {
-                                            eprintln!("音频播放失败：{:?}", e);
-                                        }
+                                        sink.append(source);
+                                        sink.sleep_until_end();
                                     }
-                                    Err(e) => {
-                                        eprintln!("音频解码失败：{:?}", e);
-                                    }
-                                }
-                            }
-                            Err(e) => {
-                                eprintln!("音频文件打开失败：{:?}", e);
-                            }
+                                    Err(e) => eprintln!("音频解码失败：{}", e),
+                                },
+                                Err(e) => eprintln!("音频文件打开失败：{}", e),
+                            },
+                            Err(e) => eprintln!("音频播放器创建失败：{}", e),
                         },
-                        Err(e) => {
-                            eprintln!("音频输出流打开失败：{:?}", e);
-                        }
-                    }
+                        Err(e) => eprintln!("音频输出流打开失败：{}", e),
+                    });
                 } else {
                     let parameters;
                     println!(
@@ -118,7 +112,7 @@ pub fn start() -> Result<(), Error> {
             update_next(&config, time, &mut next);
         }
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        thread::sleep(std::time::Duration::from_secs(1));
         update_system_time(&mut time);
     }
 }
