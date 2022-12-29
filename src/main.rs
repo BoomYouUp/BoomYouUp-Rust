@@ -9,7 +9,7 @@ mod structs {
     pub mod item;
 }
 mod utils {
-    pub mod pcstr;
+    pub mod win_str;
 }
 
 static CONFIG_PATH: &str = "config.yaml";

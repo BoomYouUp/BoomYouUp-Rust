@@ -57,7 +57,7 @@ pub fn start() -> Result<(), Error> {
                         .show();
 
                     if let Err(e) = result {
-                        eprintln!("通知发送失败：{:?}", e);
+                        eprintln!("通知发送失败：{}", e);
                     }
                 } else if command.audio {
                     println!("播放音频：{}", command.command);
