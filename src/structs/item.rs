@@ -121,12 +121,23 @@ impl Time {
     }
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Command {
     pub command: String,
     pub parameters: String,
     pub audio: bool,
     pub notify: isize,
+}
+
+impl Default for Command {
+    fn default() -> Self {
+        Command {
+            command: String::new(),
+            parameters: String::new(),
+            audio: false,
+            notify: -1,
+        }
+    }
 }
 
 pub fn add_command(config: &mut Vec<Item>, time: Time, command: Command, search_index: usize) {
