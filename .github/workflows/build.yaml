@@ -15,12 +15,18 @@ jobs:
         with:
           toolchain: stable
           override: true
+      - uses: Swatinem/rust-cache@v2
       - name: Build
         run: |
           cargo build --verbose
           cargo build --release --verbose
-      - name: Upload
-        uses: actions/upload-artifact@v2
+      - name: Upload debug
+        uses: actions/upload-artifact@v3
         with:
-          name: build
-          path: target
+          name: Debug
+          path: target/debug/boom_you_up_r.*
+      - name: Upload release
+        uses: actions/upload-artifact@v3
+        with:
+          name: Release
+          path: target/release/boom_you_up_r.*
