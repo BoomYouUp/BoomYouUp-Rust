@@ -43,10 +43,7 @@ pub fn enter() -> Result<(), Error> {
     match input {
         "1" => start(),
         "2" => reconfigure(),
-        _ => {
-            println!("输入错误，请重新输入！");
-            enter()
-        }
+        _ => enter()
     }
 }
 
@@ -67,6 +64,6 @@ fn reconfigure() -> Result<(), Error> {
             fs::remove_file(CONFIG_PATH)?;
             create_config()
         }
-        _ => reconfigure(),
+        _ => enter(),
     }
 }
