@@ -1,0 +1,26 @@
+on:
+  - push
+  - pull_request
+
+name: Build
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Build
+        run: |
+          cargo build --verbose
+          cargo build --release --verbose
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: target

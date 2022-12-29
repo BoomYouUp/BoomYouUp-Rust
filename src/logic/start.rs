@@ -40,14 +40,15 @@ pub fn start() -> Result<(), Error> {
         if time == next.time {
             for command in &next.commands {
                 if command.notify == -2 {
-                    let parameters = &format!(" 参数：{}", command.parameters);
+                    let parameters;
                     println!(
                         "为命令：{}{} 发送通知",
                         command.command,
                         if command.parameters.is_empty() {
                             ""
                         } else {
-                            parameters
+                            parameters = format!(" 参数：{}", command.parameters);
+                            &parameters
                         }
                     );
 
@@ -86,16 +87,18 @@ pub fn start() -> Result<(), Error> {
                         }
                     }
                 } else {
-                    let parameters = &format!(" 参数：{}", command.parameters);
+                    let parameters;
                     println!(
                         "执行命令：{}{}",
                         command.command,
                         if command.parameters.is_empty() {
                             ""
                         } else {
-                            parameters
+                            parameters = format!(" 参数：{}", command.parameters);
+                            &parameters
                         }
                     );
+
                     unsafe {
                         ShellExecuteA(
                             HWND::default(),
@@ -174,7 +177,7 @@ fn print_config(config: &Vec<Item>) {
                             "开始运行的 {} 秒之前，即 {:02}:{:02}:{:02}",
                             command.notify, time.hour, time.minute, time.second
                         );
-                        &*notify_str
+                        &notify_str
                     }
                 },
                 width = width
