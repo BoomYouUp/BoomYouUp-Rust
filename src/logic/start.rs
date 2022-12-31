@@ -1,12 +1,12 @@
 use crate::structs::item::{Command, Item, Time};
 use crate::{add_command_reverse, pcstr, APP_NAME, CONFIG_PATH};
+use notify_rust::Notification;
 use opener::open;
 use rodio::{Decoder, OutputStream, Sink};
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{BufReader, Error};
 use std::{fs, thread};
-use notify_rust::Notification;
 use windows::core::PCSTR;
 use windows::Win32::Foundation::{GetLastError, HWND, SYSTEMTIME};
 use windows::Win32::System::SystemInformation::GetLocalTime;
@@ -55,7 +55,10 @@ pub fn start() -> Result<(), Error> {
                     let result = Notification::new()
                         .appname(APP_NAME)
                         .summary("任务提醒")
-                        .body(&format!("你为命令 {} 设置的提醒触发了\n来自 {}", command.command, APP_NAME))
+                        .body(&format!(
+                            "你为命令 {} 设置的提醒触发了\n来自 {}",
+                            command.command, APP_NAME
+                        ))
                         .show();
 
                     if let Err(e) = result {
