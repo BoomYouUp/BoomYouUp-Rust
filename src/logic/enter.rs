@@ -43,7 +43,7 @@ pub fn enter() -> Result<(), Error> {
     match input {
         "1" => start(),
         "2" => reconfigure(),
-        _ => enter()
+        _ => enter(),
     }
 }
 
