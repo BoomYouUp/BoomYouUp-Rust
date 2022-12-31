@@ -120,6 +120,11 @@ BoomYouUpR 在 2022 年的最后一天（12-31）支持了 Linux 系统，这是
 
 `Command` 对象由 `command` 、 `parameters` 、 `audio` 和 `notify` 四个字段组成。 `command` 字段为 `String` 类型，表示要执行的命令。 `parameters` 字段为 `String` 类型，表示要传递给命令的参数（当 `audio` 为 `true` ，即使用内置播放器播放音频时，本字段将被忽略）。 `audio` 字段为 `bool` 类型，表示是否使用内置播放器播放音频。 `notify` 字段为 `isize` 类型，表示是否发送通知。当 `notify` 为非负整数时，表示发送通知提前的时间（单位为秒）；当其为 `-1` 时，表示不发送通知；在程序内部，其有可能会被指定为 `-2` ，表示该任务为发送通知（用户无需手动指定该值，这个过程将会自动执行）。
 
+## 示例配置
+
+1. [南科大附中打铃](examples/hsas_ringing)
+2. 完善中...
+
 ## 许可
 
 本项目使用 [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html) 开源许可证授权给你，使用本项目前请确保你已经阅读、理解、接受并保证遵守该许可证。
