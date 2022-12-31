@@ -6,13 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9"
-rodio = "0.16"
-winrt-notification = "0.5"
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0"
+rodio = "0"
+notify-rust = "4"
+opener = { path = "libs/opener" }
 
-[dependencies.windows]
-version = "0.43.0"
+[target.'cfg(windows)'.dependencies.windows]
+version = "0"
 features = [
     "Win32_Foundation",
     "Win32_System_Diagnostics_Debug",
@@ -20,3 +21,6 @@ features = [
     "Win32_UI_Shell",
     "Win32_UI_WindowsAndMessaging"
 ]
+
+[target.'cfg(target_os = "linux")'.dependencies]
+bstr = "1"

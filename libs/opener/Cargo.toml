@@ -1,0 +1,27 @@
+[package]
+name = "opener"
+version = "0.6.0-fan"
+authors = ["Brian Bowman <seeker14491@gmail.com>"]
+edition = "2018"
+description = "Open a file or link using the system default program."
+repository = "https://github.com/Seeker14491/opener"
+readme = "../README.md"
+keywords = ["open", "default", "launcher", "browser"]
+categories = ["os"]
+license = "MIT OR Apache-2.0"
+
+[badges]
+appveyor = { repository = "Seeker14491/opener", branch = "master", service = "github" }
+travis-ci = { repository = "Seeker14491/opener", branch = "master" }
+maintenance = { status = "passively-maintained" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+bstr = "1"
+
+[target.'cfg(windows)'.dependencies.windows]
+version = "0"
+features = [
+    "Win32_Foundation",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging"
+]
