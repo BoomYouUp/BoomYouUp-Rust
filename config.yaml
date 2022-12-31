@@ -1,6 +1,6 @@
 - time:
-    hour: 20
-    minute: 11
+    hour: 23
+    minute: 19
     second: 0
   commands:
   - command: 1.mp3

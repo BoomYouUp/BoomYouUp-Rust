@@ -1,12 +1,11 @@
 use crate::structs::item::{Command, Item, Time};
+use crate::utils::player::play;
 use crate::{add_command_reverse, APP_NAME, CONFIG_PATH};
 use chrono::{Local, Timelike};
 use notify_rust::Notification;
 use opener::open;
-use rodio::{Decoder, OutputStream, Sink};
 use std::ffi::OsStr;
-use std::fs::File;
-use std::io::{BufReader, Error};
+use std::io::Error;
 use std::{fs, thread};
 
 pub fn start() -> Result<(), Error> {
@@ -62,23 +61,7 @@ pub fn start() -> Result<(), Error> {
                     }
                 } else if command.audio {
                     println!("播放音频：{}", command.command);
-                    let command_copy = command.command.clone();
-                    thread::spawn(|| match OutputStream::try_default() {
-                        Ok((_stream, handle)) => match Sink::try_new(&handle) {
-                            Ok(sink) => match File::open(command_copy) {
-                                Ok(file) => match Decoder::new(BufReader::new(file)) {
-                                    Ok(source) => {
-                                        sink.append(source);
-                                        sink.sleep_until_end();
-                                    }
-                                    Err(e) => eprintln!("音频解码失败：{}", e),
-                                },
-                                Err(e) => eprintln!("音频文件打开失败：{}", e),
-                            },
-                            Err(e) => eprintln!("音频播放器创建失败：{}", e),
-                        },
-                        Err(e) => eprintln!("音频输出流打开失败：{}", e),
-                    });
+                    play(command.command.clone());
                 } else {
                     let parameters;
                     println!(
