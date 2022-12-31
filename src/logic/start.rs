@@ -1,5 +1,5 @@
 use crate::structs::item::{Command, Item, Time};
-use crate::{add_command_reverse, pcstr, APP_NAME, CONFIG_PATH};
+use crate::{add_command_reverse, APP_NAME, CONFIG_PATH};
 use notify_rust::Notification;
 use opener::open;
 use rodio::{Decoder, OutputStream, Sink};
@@ -7,11 +7,7 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{BufReader, Error};
 use std::{fs, thread};
-use windows::core::PCSTR;
-use windows::Win32::Foundation::{GetLastError, HWND, SYSTEMTIME};
-use windows::Win32::System::SystemInformation::GetLocalTime;
-use windows::Win32::UI::Shell::ShellExecuteA;
-use windows::Win32::UI::WindowsAndMessaging::SW_SHOWNORMAL;
+use time::OffsetDateTime;
 
 pub fn start() -> Result<(), Error> {
     let mut config =
@@ -220,24 +216,11 @@ fn update_next<'a>(config: &'a Vec<Item>, time: Time, next: &mut &'a Item) {
 }
 
 fn update_system_time(time: &mut Time) {
-    let mut system_time = SYSTEMTIME {
-        wYear: 2022,
-        wMonth: 12,
-        wDayOfWeek: 7,
-        wDay: 25,
-        wHour: 11,
-        wMinute: 45,
-        wSecond: 14,
-        wMilliseconds: 0,
-    };
-
-    unsafe {
-        GetLocalTime(&mut system_time);
-    }
+    let system_time = OffsetDateTime::now_local().expect("获取系统时间失败");
 
     *time = Time {
-        hour: system_time.wHour as u8,
-        minute: system_time.wMinute as u8,
-        second: system_time.wSecond as u8,
+        hour: system_time.hour(),
+        minute: system_time.minute(),
+        second: system_time.second(),
     };
 }
