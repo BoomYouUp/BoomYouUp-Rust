@@ -1,9 +1,0 @@
-- time:
-    hour: 23
-    minute: 19
-    second: 0
-  commands:
-  - command: 1.mp3
-    parameters: ''
-    audio: true
-    notify: -1
