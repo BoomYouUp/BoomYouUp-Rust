@@ -8,9 +8,6 @@ mod logic {
 mod structs {
     pub mod item;
 }
-mod utils {
-    pub mod win_str;
-}
 
 static CONFIG_PATH: &str = "config.yaml";
 
