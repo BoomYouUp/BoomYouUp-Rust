@@ -49,7 +49,7 @@ pub fn enter() -> Result<(), Error> {
 
 fn reconfigure() -> Result<(), Error> {
     print!(
-        "确认重新配置？你的所有配置都会被清空。如需更改配置，请打开 {} [Y/n] ",
+        "确认重新配置？你的所有配置都会被清空。如需更改配置，请打开 {} [y/N] ",
         CONFIG_PATH
     );
     io::stdout().flush()?;
