@@ -4,7 +4,7 @@ mod rodio_player;
 mod soloud_player;
 
 #[cfg(not(target_os = "linux"))]
-use rodio_player as audio;
+use rodio_player as player;
 #[cfg(target_os = "linux")]
 use soloud_player as player;
 
