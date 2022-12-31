@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
-        run: sudo apt-get install -y librust-alsa-sys-dev
+        run: sudo apt install librust-alsa-sys-dev
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
