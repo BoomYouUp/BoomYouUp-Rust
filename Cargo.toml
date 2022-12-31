@@ -10,5 +10,5 @@ serde = { version = "1", features = ["derive"] }
 serde_yaml = "0"
 rodio = "0"
 notify-rust = "4"
-time = { version = "0", features = ["local-offset"] }
+chrono = { version = "0", features = ["clock"] }
 opener = { path = "libs/opener" }

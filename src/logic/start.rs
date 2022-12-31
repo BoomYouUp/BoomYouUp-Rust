@@ -1,5 +1,6 @@
 use crate::structs::item::{Command, Item, Time};
 use crate::{add_command_reverse, APP_NAME, CONFIG_PATH};
+use chrono::{Local, Timelike};
 use notify_rust::Notification;
 use opener::open;
 use rodio::{Decoder, OutputStream, Sink};
@@ -7,7 +8,6 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{BufReader, Error};
 use std::{fs, thread};
-use time::OffsetDateTime;
 
 pub fn start() -> Result<(), Error> {
     let mut config =
@@ -216,14 +216,11 @@ fn update_next<'a>(config: &'a Vec<Item>, time: Time, next: &mut &'a Item) {
 }
 
 fn update_system_time(time: &mut Time) {
-    let system_time_result = OffsetDateTime::now_local();
+    let system_time = Local::now();
 
-    match system_time_result {
-        Ok(system_time) => *time = Time {
-            hour: system_time.hour(),
-            minute: system_time.minute(),
-            second: system_time.second(),
-        },
-        Err(e) => eprintln!("系统时间获取失败：{}", e),
-    }
+    *time = Time {
+        hour: system_time.hour() as u8,
+        minute: system_time.minute() as u8,
+        second: system_time.second() as u8,
+    };
 }
