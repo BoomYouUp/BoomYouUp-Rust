@@ -1,7 +1,7 @@
 use crate::OpenError;
 use std::ffi::OsStr;
+use std::io;
 use std::os::windows::ffi::OsStrExt;
-use std::{io, ptr};
 use windows::core::PCWSTR;
 use windows::w;
 use windows::Win32::Foundation::{GetLastError, HWND};
@@ -16,7 +16,7 @@ pub(crate) fn open(path: &OsStr, parameters: &OsStr) -> Result<(), OpenError> {
             HWND::default(),
             w!("open"),
             PCWSTR::from_raw(path.as_ptr()),
-            parameters,
+            PCWSTR::from_raw(parameters.as_ptr()),
             PCWSTR::null(),
             SW_SHOWNORMAL,
         );
