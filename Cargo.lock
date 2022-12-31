@@ -184,7 +184,6 @@ dependencies = [
 name = "boom_you_up_r"
 version = "0.1.0"
 dependencies = [
- "bstr",
  "notify-rust",
  "opener",
  "rodio",
