@@ -5,9 +5,59 @@ on:
 name: Build
 
 jobs:
-  build:
-    name: Build
+  build-windows:
+    name: Build Windows
     runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: |
+          cargo build --verbose
+          cargo build --release --verbose
+      - name: Upload debug
+        uses: actions/upload-artifact@v3
+        with:
+          name: Debug
+          path: target/debug/boom_you_up_r.*
+      - name: Upload release
+        uses: actions/upload-artifact@v3
+        with:
+          name: Release
+          path: target/release/boom_you_up_r.*
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: |
+          cargo build --verbose
+          cargo build --release --verbose
+      - name: Upload debug
+        uses: actions/upload-artifact@v3
+        with:
+          name: Debug
+          path: target/debug/boom_you_up_r.*
+      - name: Upload release
+        uses: actions/upload-artifact@v3
+        with:
+          name: Release
+          path: target/release/boom_you_up_r.*
+  build-macos:
+    name: Build MacOS
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Install toolchain
