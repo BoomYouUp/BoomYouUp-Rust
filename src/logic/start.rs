@@ -216,11 +216,14 @@ fn update_next<'a>(config: &'a Vec<Item>, time: Time, next: &mut &'a Item) {
 }
 
 fn update_system_time(time: &mut Time) {
-    let system_time = OffsetDateTime::now_local().expect("获取系统时间失败");
+    let system_time_result = OffsetDateTime::now_local();
 
-    *time = Time {
-        hour: system_time.hour(),
-        minute: system_time.minute(),
-        second: system_time.second(),
-    };
+    match system_time_result {
+        Ok(system_time) => *time = Time {
+            hour: system_time.hour(),
+            minute: system_time.minute(),
+            second: system_time.second(),
+        },
+        Err(e) => eprintln!("系统时间获取失败：{}", e),
+    }
 }
