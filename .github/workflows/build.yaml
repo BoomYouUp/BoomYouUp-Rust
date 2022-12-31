@@ -5,8 +5,8 @@ on:
 name: Build
 
 jobs:
-  build-windows:
-    name: Build Windows
+  build-windows-x86-64:
+    name: Build Windows x86_64
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,15 +23,41 @@ jobs:
       - name: Upload debug
         uses: actions/upload-artifact@v3
         with:
-          name: Debug-Windows
+          name: Debug-Windows-x86_64
           path: target/debug/boom_you_up_r*
       - name: Upload release
         uses: actions/upload-artifact@v3
         with:
-          name: Release-Windows
+          name: Release-Windows-x86_64
           path: target/release/boom_you_up_r*
-  build-linux:
-    name: Build Linux
+  build-windows-arm64:
+    name: Build Windows arm64
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-pc-windows-msvc
+          override: true
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: |
+          cargo build --verbose
+          cargo build --release --verbose
+      - name: Upload debug
+        uses: actions/upload-artifact@v3
+        with:
+          name: Debug-Windows-arm64
+          path: target/debug/boom_you_up_r*
+      - name: Upload release
+        uses: actions/upload-artifact@v3
+        with:
+          name: Release-Windows-arm64
+          path: target/release/boom_you_up_r*
+  build-linux-x86-64:
+    name: Build Linux x86_64
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -50,15 +76,43 @@ jobs:
       - name: Upload debug
         uses: actions/upload-artifact@v3
         with:
-          name: Debug-Linux
+          name: Debug-Linux-x86_64
           path: target/debug/boom_you_up_r*
       - name: Upload release
         uses: actions/upload-artifact@v3
         with:
-          name: Release-Linux
+          name: Release-Linux-x86_64
           path: target/release/boom_you_up_r*
-  build-macos:
-    name: Build MacOS
+  build-linux-arm64:
+    name: Build Linux arm64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: sudo apt install librust-alsa-sys-dev
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-unknown-linux-gnu
+          override: true
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: |
+          cargo build --verbose
+          cargo build --release --verbose
+      - name: Upload debug
+        uses: actions/upload-artifact@v3
+        with:
+          name: Debug-Linux-arm64
+          path: target/debug/boom_you_up_r*
+      - name: Upload release
+        uses: actions/upload-artifact@v3
+        with:
+          name: Release-Linux-arm64
+          path: target/release/boom_you_up_r*
+  build-macos-x86-64:
+    name: Build MacOS x86_64
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -75,10 +129,36 @@ jobs:
       - name: Upload debug
         uses: actions/upload-artifact@v3
         with:
-          name: Debug-MacOS
+          name: Debug-MacOS-x86_64
           path: target/debug/boom_you_up_r*
       - name: Upload release
         uses: actions/upload-artifact@v3
         with:
-          name: Release-MacOS
+          name: Release-MacOS-x86_64
+          path: target/release/boom_you_up_r*
+  build-macos-arm64:
+    name: Build MacOS arm64
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-apple-darwin
+          override: true
+      - uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: |
+          cargo build --verbose
+          cargo build --release --verbose
+      - name: Upload debug
+        uses: actions/upload-artifact@v3
+        with:
+          name: Debug-MacOS-arm64
+          path: target/debug/boom_you_up_r*
+      - name: Upload release
+        uses: actions/upload-artifact@v3
+        with:
+          name: Release-MacOS-arm64
           path: target/release/boom_you_up_r*
