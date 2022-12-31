@@ -1,15 +1,17 @@
 use crate::structs::item::{Command, Item, Time};
 use crate::{add_command_reverse, pcstr, APP_NAME, CONFIG_PATH};
+use opener::open;
 use rodio::{Decoder, OutputStream, Sink};
+use std::ffi::OsStr;
 use std::fs::File;
 use std::io::{BufReader, Error};
 use std::{fs, thread};
+use notify_rust::Notification;
 use windows::core::PCSTR;
 use windows::Win32::Foundation::{GetLastError, HWND, SYSTEMTIME};
 use windows::Win32::System::SystemInformation::GetLocalTime;
 use windows::Win32::UI::Shell::ShellExecuteA;
 use windows::Win32::UI::WindowsAndMessaging::SW_SHOWNORMAL;
-use winrt_notification::Toast;
 
 pub fn start() -> Result<(), Error> {
     let mut config =
@@ -50,10 +52,10 @@ pub fn start() -> Result<(), Error> {
                         }
                     );
 
-                    let result = Toast::new(Toast::POWERSHELL_APP_ID)
-                        .title("任务提醒")
-                        .text1(&format!("你为命令 {} 设置的提醒触发了", command.command))
-                        .text2(&format!("来自 {}", APP_NAME))
+                    let result = Notification::new()
+                        .appname(APP_NAME)
+                        .summary("任务提醒")
+                        .body(&format!("你为命令 {} 设置的提醒触发了\n来自 {}", command.command, APP_NAME))
                         .show();
 
                     if let Err(e) = result {
@@ -91,20 +93,11 @@ pub fn start() -> Result<(), Error> {
                         }
                     );
 
-                    unsafe {
-                        ShellExecuteA(
-                            HWND::default(),
-                            pcstr!("open"),
-                            pcstr!(command.command.clone()),
-                            pcstr!(command.parameters.clone()),
-                            PCSTR::null(),
-                            SW_SHOWNORMAL,
-                        );
-
-                        let result = GetLastError().to_hresult();
-                        if result.is_err() {
-                            println!("命令执行错误：{}", result.message());
-                        }
+                    if let Err(e) = open(
+                        OsStr::new(&command.command),
+                        OsStr::new(&command.parameters),
+                    ) {
+                        eprintln!("命令执行错误：{}", e);
                     }
                 }
                 println!();
