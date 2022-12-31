@@ -15,11 +15,11 @@ pub(crate) fn open(path: &OsStr, parameters: &OsStr) -> Result<(), OpenError> {
         }
     } else {
         Command::new(path)
-            .args(parameters)
+            .arg(parameters)
             .spawn()
             .map(|mut child| child.wait().map(|_| ()))
             .map_err(OpenError::Io)
-            .and_then(|r| r)
+            //.and_then(|r| r)
     }
 }
 
