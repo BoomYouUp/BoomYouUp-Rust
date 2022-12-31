@@ -12,7 +12,7 @@
 
 首次运行程序，可以通过交互式命令行进行配置。也可以通过拷贝或编辑工作目录（一般情况下为程序目录）下的配置文件 `config.yaml` （未来将支持载入不同配置）进行配置。
 
-![交互式命令行](doc_res/img.png)
+![交互式命令行](doc_res/img_CLI.png)
 
 根据提示，我们想要指定在 12:00:00 执行 `cmd` 命令，可以输入如下内容：
 
@@ -23,23 +23,23 @@
 
 按下 <kbd>Enter</kbd> 键后，程序将会自动写入配置并进入运行状态。
 
-![12点cmd](doc_res/img_1.png)
+![12点cmd](doc_res/img_cmd_example.png)
 
 若配置文件已经存在，启动程序时，程序会询问我们想执行的操作。
 
-![程序操作](doc_res/img_2.png)
+![询问操作](doc_res/img_operation_selection.png)
 
 按照提示，如果我们想开始运行程序，可以输入 `1` 并按下 <kbd>Enter</kbd> 键。
 
 如果我们想要重新配置，可以输入 `2` 并按下 <kbd>Enter</kbd> 键。此时程序会再次询问是否想重新配置。
 
-![询问重新配置](doc_res/img_3.png)
+![询问重新配置](doc_res/img_reconfigure.png)
 
-按照提示，如果我们确实想重新配置，可以输入 `Y` 并按下 <kbd>Enter</kbd> 键，此时程序将重新引导我们进行交互式配置。
+按照提示，如果我们确实想重新配置，可以输入 `y` 并按下 <kbd>Enter</kbd> 键，此时程序将重新引导我们进行交互式配置。
 
 请注意，我们在选择操作和确认重新配置时输入错误的值会让我们重新进入选择操作状态：
 
-![错误输入](doc_res/img_4.png)
+![错误输入](doc_res/img_wrong_input.png)
 
 如果我们尝试使用这样的配置文件，程序将会在 19:55:00 发送一条通知并启动 `boom_you_up_r.exe` ：
 
@@ -57,13 +57,17 @@
 
 这是通知在 Windows 11 上的效果：
 
-![通知](doc_res/img_5.png)
+![通知](doc_res/img_notification_windows_11.png)
 
 请注意，由于 Windows 系统的限制，没有在操作系统中注册的程序无法以自己的“身份”发送通知，故本程序“借用”了 `Windows PowerShell` 的“身份”发送通知。
 
 这是程序运行时的效果：
 
-![程序运行](doc_res/img_6.png)
+![程序运行](doc_res/img_running.png)
+
+BoomYouUpR 在 2022 年的最后一天（12-31）支持了 Linux 系统，这是程序在 Ubuntu 22.10 和 GNOME 43.1 上的效果：
+
+![Ubuntu](doc_res/img_Ubuntu.png)
 
 ## 配置
 
