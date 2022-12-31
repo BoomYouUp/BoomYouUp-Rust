@@ -6,11 +6,20 @@ use std::{fs, io};
 
 const XDG_OPEN_SCRIPT: &[u8] = include_bytes!("xdg-open");
 
-pub(crate) fn open(path: &OsStr) -> Result<(), OpenError> {
-    if crate::is_wsl() {
-        wsl_open(path)
+pub(crate) fn open(path: &OsStr, parameters: &OsStr) -> Result<(), OpenError> {
+    if parameters.is_empty() {
+        if crate::is_wsl() {
+            wsl_open(path)
+        } else {
+            non_wsl_open(path)
+        }
     } else {
-        non_wsl_open(path)
+        Command::new(path)
+            .args(parameters)
+            .spawn()
+            .map(|mut child| child.wait().map(|_| ()))
+            .map_err(OpenError::Io)
+            .and_then(|r| r)
     }
 }
 

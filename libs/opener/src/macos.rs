@@ -2,9 +2,12 @@ use crate::OpenError;
 use std::ffi::OsStr;
 use std::process::{Command, Stdio};
 
-pub(crate) fn open(path: &OsStr) -> Result<(), OpenError> {
-    let mut open = Command::new("open")
-        .arg(path)
+pub(crate) fn open(path: &OsStr, parameters: &OsStr) -> Result<(), OpenError> {
+    let mut open = Command::new("open").arg(path);
+    if !parameters.is_empty() {
+        open = open.arg("--args").arg(parameters);
+    }
+    open = open
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::piped())

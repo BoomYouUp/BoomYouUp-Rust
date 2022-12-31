@@ -6,10 +6,10 @@
 //! ```no_run
 //! # fn main() -> Result<(), opener::OpenError> {
 //! // open a website
-//! opener::open("https://www.rust-lang.org")?;
+//! opener::open("https://www.rust-lang.org", "")?;
 //!
 //! // open a file
-//! opener::open("../Cargo.toml")?;
+//! opener::open("../Cargo.toml", "")?;
 //! # Ok(())
 //! # }
 //! ```
@@ -67,11 +67,12 @@ use std::{env, io};
 /// this library is used.
 ///
 /// [`wslu`]: https://github.com/wslutilities/wslu/
-pub fn open<P>(path: P) -> Result<(), OpenError>
+pub fn open<P1, P2>(path: P1, parameters: P2) -> Result<(), OpenError>
 where
-    P: AsRef<OsStr>,
+    P1: AsRef<OsStr>,
+    P2: AsRef<OsStr>,
 {
-    sys::open(path.as_ref())
+    sys::open(path.as_ref(), parameters.as_ref())
 }
 
 /// Opens a file or link with the system default program, using the `BROWSER` environment variable
@@ -79,9 +80,10 @@ where
 ///
 /// If the `BROWSER` environment variable is set, the program specified by it is used to open the
 /// path. If not, behavior is identical to [`open()`].
-pub fn open_browser<P>(path: P) -> Result<(), OpenError>
+pub fn open_browser<P1, P2>(path: P1, parameters: P2) -> Result<(), OpenError>
 where
-    P: AsRef<OsStr>,
+    P1: AsRef<OsStr>,
+    P2: AsRef<OsStr>,
 {
     let mut path = path.as_ref();
     if let Ok(browser_var) = env::var("BROWSER") {
@@ -103,7 +105,7 @@ where
 
         Ok(())
     } else {
-        sys::open(path)
+        sys::open(path, parameters.as_ref())
     }
 }
 
