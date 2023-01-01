@@ -1,15 +1,17 @@
 [package]
 name = "boom_you_up_r"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = { version = "0", features = ["clock"] }
+crossterm = "0"
+notify-rust = "4"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0"
-notify-rust = "4"
-chrono = { version = "0", features = ["clock"] }
+
 opener = { path = "libs/opener" }
 
 [target.'cfg(target_os = "linux")'.dependencies]

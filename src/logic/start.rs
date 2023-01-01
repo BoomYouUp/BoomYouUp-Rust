@@ -1,3 +1,4 @@
+use crate::error::Result;
 use crate::structs::item::{Command, Item, Time};
 use crate::utils::player::play;
 use crate::{add_command_reverse, APP_NAME, CONFIG_PATH};
@@ -5,20 +6,18 @@ use chrono::{Local, Timelike};
 use notify_rust::Notification;
 use opener::open;
 use std::ffi::OsStr;
-use std::io::Error;
 use std::{fs, thread};
 
-pub fn start() -> Result<(), Error> {
-    let mut config =
-        serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(CONFIG_PATH).expect("配置读取错误"))
-            .expect("配置读取错误");
+pub fn start() -> Result {
+    let mut config = serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(CONFIG_PATH)?)?;
 
     config.sort_unstable_by(|a, b| a.time.cmp(&b.time));
-    fs::write(
-        CONFIG_PATH,
-        serde_yaml::to_string(&config).expect("配置序列化错误"),
-    )
-    .expect("配置写入错误");
+    match fs::write(CONFIG_PATH, serde_yaml::to_string(&config)?) {
+        Ok(_) => {}
+        Err(e) => {
+            eprintln!("配置重新写入时遇到了错误: {}", e);
+        }
+    }
 
     print_config(&config);
     parse_config(&mut config);
@@ -96,10 +95,7 @@ fn print_config(config: &Vec<Item>) {
     println!("配置解析中，配置如下：");
 
     for item in config {
-        print!(
-            "{:02}:{:02}:{:02} ",
-            item.time.hour, item.time.minute, item.time.second
-        );
+        print!("{} ", item.time);
 
         let mut width = 0;
         for command in &item.commands {
@@ -136,14 +132,11 @@ fn print_config(config: &Vec<Item>) {
                 "{:>width$}发送通知：{}",
                 "",
                 match command.notify {
-                    -1 => "否",
+                    ..=-1 => "否",
                     0 => "开始运行时",
                     _ => {
                         let time = item.time - Time::second(command.notify as usize);
-                        notify_str = format!(
-                            "开始运行的 {} 秒之前，即 {:02}:{:02}:{:02}",
-                            command.notify, time.hour, time.minute, time.second
-                        );
+                        notify_str = format!("开始运行的 {} 秒之前，即 {}", command.notify, time);
                         &notify_str
                     }
                 },
@@ -192,10 +185,7 @@ fn update_next<'a>(config: &'a Vec<Item>, time: Time, next: &mut &'a Item) {
         }
     }
 
-    println!(
-        "下一次执行时间：{:02}:{:02}:{:02}",
-        next.time.hour, next.time.minute, next.time.second
-    );
+    println!("下一次执行时间：{}", next.time);
 }
 
 fn update_system_time(time: &mut Time) {

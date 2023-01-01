@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use std::fmt::Display;
 use std::ops::{Add, Sub};
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -13,6 +14,12 @@ pub struct Time {
     pub hour: u8,
     pub minute: u8,
     pub second: u8,
+}
+
+impl Display for Time {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:02}:{:02}:{:02}", self.hour, self.minute, self.second)
+    }
 }
 
 impl PartialOrd for Time {
