@@ -38,7 +38,7 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.target }}-${{ matrix.type-name }}
+          name: ${{ matrix.target }}-${{ matrix.type-name }}-${{ github.sha }}
           path: target/${{ matrix.target }}/${{ matrix.type }}/boom_you_up_r*
   build-linux:
     name: Build Linux
@@ -75,7 +75,7 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.target }}-${{ matrix.type-name }}
+          name: ${{ matrix.target }}-${{ matrix.type-name }}-${{ github.sha }}
           path: target/${{ matrix.target }}/${{ matrix.type }}/boom_you_up_r*
   build-macos:
     name: Build MacOS
@@ -111,5 +111,5 @@ jobs:
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.target }}-${{ matrix.type-name }}
+          name: ${{ matrix.target }}-${{ matrix.type-name }}-${{ github.sha }}
           path: target/${{ matrix.target }}/${{ matrix.type }}/boom_you_up_r*
