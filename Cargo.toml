@@ -9,13 +9,9 @@ edition = "2021"
 chrono = { version = "0", features = ["clock"] }
 crossterm = "0"
 notify-rust = "4"
+prettytable-rs = "0"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0"
-
-opener = { path = "libs/opener" }
-
-[target.'cfg(target_os = "linux")'.dependencies]
 soloud = "1"
 
-[target.'cfg(not(target_os = "linux"))'.dependencies]
-rodio = "0"
+opener = { path = "libs/opener" }
