@@ -1,6 +1,6 @@
-pub type FinalResult = Result<(), UnexpectedError>;
-pub type NormalResult = Result<(), NormalError>;
-pub type DetailedResult = Result<NormalResult, UnexpectedError>;
+pub type FinalResult<T = ()> = Result<T, UnexpectedError>;
+pub type NormalResult<T = ()> = Result<T, NormalError>;
+pub type DetailedResult<T = ()> = Result<NormalResult<T>, UnexpectedError>;
 
 #[derive(Debug)]
 pub enum UnexpectedError {
@@ -52,17 +52,17 @@ impl std::fmt::Display for NormalError {
 
 impl std::error::Error for NormalError {}
 
-pub struct ErrorPrintingArgs {
+pub struct PrintingArgs {
     pub message: Option<String>,
 }
 
-impl ErrorPrintingArgs {
+impl PrintingArgs {
     pub fn new() -> Self {
-        ErrorPrintingArgs { message: None }
+        PrintingArgs { message: None }
     }
 
     pub fn normal() -> Self {
-        ErrorPrintingArgs {
+        PrintingArgs {
             message: Some("遇到了问题".to_string()),
         }
     }
@@ -73,16 +73,16 @@ impl ErrorPrintingArgs {
     }
 }
 
-pub trait ErrorPrintln {
-    fn error_println_then(&self, args: ErrorPrintingArgs) -> &Self;
+pub trait ResultPrinting {
+    fn result_println_then(&self, args: PrintingArgs) -> &Self;
 
-    fn error_println(&self, args: ErrorPrintingArgs) {
-        self.error_println_then(args);
+    fn result_println(&self, args: PrintingArgs) {
+        self.result_println_then(args);
     }
 }
 
-impl<T, E: std::error::Error> ErrorPrintln for Result<T, E> {
-    fn error_println_then(&self, args: ErrorPrintingArgs) -> &Self {
+impl<T, E: std::error::Error> ResultPrinting for Result<T, E> {
+    fn result_println_then(&self, args: PrintingArgs) -> &Self {
         match self {
             Ok(_) => {
                 if let Some(message) = args.message {
@@ -100,3 +100,18 @@ impl<T, E: std::error::Error> ErrorPrintln for Result<T, E> {
         self
     }
 }
+
+impl<E: std::error::Error + _Error> ResultPrinting for E {
+    fn result_println_then(&self, args: PrintingArgs) -> &Self {
+        eprintln!(
+            "{}：{self}",
+            args.message.unwrap_or_else(|| "错误".to_string())
+        );
+
+        self
+    }
+}
+
+pub trait _Error {}
+impl _Error for NormalError {}
+impl _Error for UnexpectedError {}

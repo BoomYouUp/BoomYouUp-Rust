@@ -1,4 +1,4 @@
-use crate::error::ErrorPrintln;
+use crate::error::ResultPrinting;
 
 mod error;
 mod logic;
@@ -18,5 +18,5 @@ fn main() {
         env!("CARGO_PKG_VERSION")
     );
 
-    logic::enter::enter().error_println(error::ErrorPrintingArgs::new());
+    logic::enter::enter().result_println(error::PrintingArgs::new());
 }
