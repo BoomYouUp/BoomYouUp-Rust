@@ -1,4 +1,4 @@
-use crate::error::{Result, UnexpectedError};
+use crate::error::{FinalResult, UnexpectedError};
 use crate::logic::create_config::create_config;
 use crate::logic::start::start;
 use crate::structs::item::Item;
@@ -7,7 +7,7 @@ use fs::remove_file;
 use std::io::Write;
 use std::{fs, io};
 
-pub fn enter() -> Result {
+pub fn enter() -> FinalResult {
     let config_str = fs::read_to_string(CONFIG_PATH);
 
     if let Err(e) = config_str {
@@ -51,7 +51,7 @@ pub fn enter() -> Result {
     }
 }
 
-fn reconfigure() -> Result {
+fn reconfigure() -> FinalResult {
     print!(
         "确认重新配置? 你的所有配置都会被清空. 如需更改配置, 请打开 {} [y/N] ",
         CONFIG_PATH

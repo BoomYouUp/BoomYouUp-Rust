@@ -1,5 +1,6 @@
-pub type Result = std::result::Result<(), UnexpectedError>;
-pub type NormalResult = std::result::Result<std::result::Result<(), NormalError>, UnexpectedError>;
+pub type FinalResult = Result<(), UnexpectedError>;
+pub type NormalResult = Result<(), NormalError>;
+pub type DetailedResult = Result<NormalResult, UnexpectedError>;
 
 #[derive(Debug)]
 pub enum UnexpectedError {
@@ -36,6 +37,7 @@ impl From<serde_yaml::Error> for UnexpectedError {
 pub enum NormalError {
     Input,
     NumberFormat,
+    Cancelled,
 }
 
 impl std::fmt::Display for NormalError {
@@ -43,6 +45,7 @@ impl std::fmt::Display for NormalError {
         match self {
             NormalError::Input => write!(f, "输入错误"),
             NormalError::NumberFormat => write!(f, "数字格式错误"),
+            NormalError::Cancelled => write!(f, "操作已取消"),
         }
     }
 }

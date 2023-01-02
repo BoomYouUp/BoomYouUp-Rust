@@ -1,15 +1,13 @@
-use crate::error::NormalError::{Input, NumberFormat};
-use crate::error::{NormalResult, Result};
-use crate::logic::start::start;
+use crate::error::NormalError::{Cancelled, Input, NumberFormat};
+use crate::error::{DetailedResult, FinalResult};
 use crate::structs::item::{Command, Item, Time};
 use crate::{add_command, normal_unwrap, CONFIG_PATH};
 use std::io::Write;
 use std::str::SplitWhitespace;
 use std::{fs, io};
+use crate::logic::enter::enter;
 
-pub fn create_config() -> Result {
-    println!("配置文件为空或读取失败, 请填上它!");
-    println!();
+pub fn create_config() -> FinalResult {
     println!("请选择配置方式");
     println!("1. 输入所有参数进行配置");
     println!("2. 交互式配置");
@@ -20,14 +18,21 @@ pub fn create_config() -> Result {
     io::stdin().read_line(&mut input)?;
     let input = input.trim();
 
-    match input {
+    let result = match input {
         "1" => create_with_all_parameters(),
         "2" => create_config_by_interactive(),
-        _ => create_config(),
+        _ => { Ok(Err(Input)) },
+    }?;
+
+    match result {
+        Ok(()) => return enter(),
+        Err(_) => normal_unwrap!(result),
     }
+
+    create_config()
 }
 
-fn create_with_all_parameters() -> Result {
+fn create_with_all_parameters() -> DetailedResult {
     println!("接下来请在窗口中输入所有参数进行配置, 每行一个, 格式: ");
     println!();
     println!("时间 是否使用内置播放器 发送通知 文件路径 参数");
@@ -94,7 +99,7 @@ fn create_with_all_parameters() -> Result {
 
             match command {
                 "114514" => break,
-                "1919810" => return create_config(),
+                "1919810" => return Ok(Err(Cancelled)),
                 "d" => {
                     match input.next() {
                         Some(index) => match index.parse::<usize>() {
@@ -141,10 +146,10 @@ fn create_with_all_parameters() -> Result {
     println!("很好, 配置已写入文件, 正在尝试读取...");
     println!();
 
-    start()
+    Ok(Ok(()))
 }
 
-fn parse_item(mut input: SplitWhitespace, time: &mut Time, command: &mut Command) -> NormalResult {
+fn parse_item(mut input: SplitWhitespace, time: &mut Time, command: &mut Command) -> DetailedResult {
     normal_unwrap!(parse_time(&mut input, time)?);
 
     match input.next() {
@@ -174,7 +179,7 @@ fn parse_item(mut input: SplitWhitespace, time: &mut Time, command: &mut Command
     Ok(Ok(()))
 }
 
-fn parse_time(input: &mut SplitWhitespace, time: &mut Time) -> NormalResult {
+fn parse_time(input: &mut SplitWhitespace, time: &mut Time) -> DetailedResult {
     match input.next() {
         Some(h) => match h.parse::<u8>() {
             Ok(h) => {
@@ -220,15 +225,15 @@ fn parse_time(input: &mut SplitWhitespace, time: &mut Time) -> NormalResult {
     Ok(Ok(()))
 }
 
-fn delete_item(config: &mut Vec<Item>, index: usize) -> NormalResult {
+fn delete_item(config: &mut Vec<Item>, index: usize) -> DetailedResult {
     Ok(Ok(()))
 }
 
-fn edit_item(config: &mut Vec<Item>, index: usize) -> NormalResult {
+fn edit_item(config: &mut Vec<Item>, index: usize) -> DetailedResult {
     Ok(Ok(()))
 }
 
-fn create_config_by_interactive() -> Result {
+fn create_config_by_interactive() -> DetailedResult {
     println!("欢迎使用交互式配置创建器");
     println!();
 
@@ -245,5 +250,5 @@ fn create_config_by_interactive() -> Result {
         io::stdin().read_line(&mut input)?;
     }
 
-    start()
+    Ok(Ok(()))
 }

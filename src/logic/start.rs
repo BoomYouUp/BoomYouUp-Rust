@@ -1,4 +1,4 @@
-use crate::error::Result;
+use crate::error::FinalResult;
 use crate::structs::item::{Command, Item, Time};
 use crate::utils::player::play;
 use crate::{add_command_reverse, APP_NAME, CONFIG_PATH};
@@ -8,7 +8,7 @@ use opener::open;
 use std::ffi::OsStr;
 use std::{fs, thread};
 
-pub fn start() -> Result {
+pub fn start() -> FinalResult {
     let mut config = serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(CONFIG_PATH)?)?;
 
     config.sort_unstable_by(|a, b| a.time.cmp(&b.time));
