@@ -1,14 +1,19 @@
-use crate::error::FinalResult;
-use crate::structs::item::{Command, Item, Time};
-use crate::utils::player::play;
-use crate::{add_command_reverse, APP_NAME, CONFIG_PATH};
+use std::ffi::OsStr;
+use std::io::Write;
+use std::path::Path;
+use std::time::Duration;
+use std::{fs, thread};
+
 use chrono::{Local, Timelike};
 use notify_rust::Notification;
 use opener::open;
-use std::ffi::OsStr;
-use std::{fs, thread};
+use soloud::{AudioExt, LoadExt, Soloud, Wav};
 
-pub fn start() -> FinalResult {
+use crate::error::FinalResult;
+use crate::structs::item::{Command, Item, Time};
+use crate::{add_command_reverse, APP_NAME, CONFIG_PATH};
+
+pub fn run() -> FinalResult {
     let mut config = serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(CONFIG_PATH)?)?;
 
     config.sort_unstable_by(|a, b| a.time.cmp(&b.time));
@@ -60,7 +65,23 @@ pub fn start() -> FinalResult {
                     }
                 } else if command.audio {
                     println!("播放音频：{}", command.command);
-                    play(command.command.clone());
+                    let clone = command.command.clone();
+                    thread::spawn(move || match Soloud::default() {
+                        Ok(player) => {
+                            let mut wav = Wav::default();
+                            match wav.load(Path::new(&clone)) {
+                                Ok(_) => {
+                                    player.play(&wav);
+
+                                    while player.active_voice_count() > 0 {
+                                        thread::sleep(Duration::from_millis(100));
+                                    }
+                                }
+                                Err(e) => eprintln!("音频解码失败：{}", e),
+                            }
+                        }
+                        Err(e) => eprintln!("音频播放器创建失败：{}", e),
+                    });
                 } else {
                     let parameters;
                     println!(
@@ -83,10 +104,12 @@ pub fn start() -> FinalResult {
                 }
                 println!();
             }
+
+            std::io::stdout().flush()?;
             update_next(&config, time, &mut next);
         }
 
-        thread::sleep(std::time::Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(1));
         update_system_time(&mut time);
     }
 }

@@ -1,3 +1,5 @@
+use crate::error::ErrorPrintln;
+
 mod error;
 mod logic;
 mod structs;
@@ -16,5 +18,5 @@ fn main() {
         env!("CARGO_PKG_VERSION")
     );
 
-    normal_unwrap!(logic::enter::enter());
+    logic::enter::enter().error_println(error::ErrorPrintingArgs::new());
 }

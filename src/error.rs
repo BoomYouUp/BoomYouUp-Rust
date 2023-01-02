@@ -52,11 +52,51 @@ impl std::fmt::Display for NormalError {
 
 impl std::error::Error for NormalError {}
 
-#[macro_export]
-macro_rules! normal_unwrap {
-    ($r:expr) => {
-        if let Err(e) = $r {
-            eprintln!("遇到了问题: {}", e);
+pub struct ErrorPrintingArgs {
+    pub message: Option<String>,
+}
+
+impl ErrorPrintingArgs {
+    pub fn new() -> Self {
+        ErrorPrintingArgs { message: None }
+    }
+
+    pub fn normal() -> Self {
+        ErrorPrintingArgs {
+            message: Some("遇到了问题".to_string()),
         }
-    };
+    }
+
+    pub fn message(mut self, message: &str) -> Self {
+        self.message = Some(message.to_string());
+        self
+    }
+}
+
+pub trait ErrorPrintln {
+    fn error_println_then(&self, args: ErrorPrintingArgs) -> &Self;
+
+    fn error_println(&self, args: ErrorPrintingArgs) {
+        self.error_println_then(args);
+    }
+}
+
+impl<T, E: std::error::Error> ErrorPrintln for Result<T, E> {
+    fn error_println_then(&self, args: ErrorPrintingArgs) -> &Self {
+        match self {
+            Ok(_) => {
+                if let Some(message) = args.message {
+                    println!("{message}");
+                }
+            }
+            Err(e) => {
+                eprintln!(
+                    "{}：{e}",
+                    args.message.unwrap_or_else(|| "错误".to_string())
+                );
+            }
+        }
+
+        self
+    }
 }

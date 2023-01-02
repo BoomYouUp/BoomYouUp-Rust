@@ -1,11 +1,12 @@
-use crate::error::NormalError::{Cancelled, Input, NumberFormat};
-use crate::error::{DetailedResult, FinalResult};
-use crate::structs::item::{Command, Item, Time};
-use crate::{add_command, normal_unwrap, CONFIG_PATH};
 use std::io::Write;
 use std::str::SplitWhitespace;
 use std::{fs, io};
+
+use crate::error::NormalError::{Cancelled, Input, NumberFormat};
+use crate::error::{DetailedResult, ErrorPrintingArgs, ErrorPrintln, FinalResult};
 use crate::logic::enter::enter;
+use crate::structs::item::{Command, Item, Time};
+use crate::{add_command, CONFIG_PATH};
 
 pub fn create_config() -> FinalResult {
     println!("请选择配置方式");
@@ -21,13 +22,17 @@ pub fn create_config() -> FinalResult {
     let result = match input {
         "1" => create_with_all_parameters(),
         "2" => create_config_by_interactive(),
-        _ => { Ok(Err(Input)) },
+        _ => Ok(Err(Input)),
     }?;
+
+    println!();
 
     match result {
         Ok(()) => return enter(),
-        Err(_) => normal_unwrap!(result),
+        Err(_) => result.error_println(ErrorPrintingArgs::normal()),
     }
+
+    println!();
 
     create_config()
 }
@@ -102,8 +107,10 @@ fn create_with_all_parameters() -> DetailedResult {
                 "1919810" => return Ok(Err(Cancelled)),
                 "d" => {
                     match input.next() {
-                        Some(index) => match index.parse::<usize>() {
-                            Ok(index) => normal_unwrap!(delete_item(&mut config, index)?),
+                        Some(i) => match i.parse::<usize>() {
+                            Ok(i) => delete_item(&mut config, i, &mut index)?.error_println(
+                                ErrorPrintingArgs::new().message("删除过程中遇到了问题"),
+                            ),
                             Err(_) => eprintln!("输入的序号不是一个有效数字"),
                         },
                         None => eprintln!("缺少参数：序号"),
@@ -112,8 +119,12 @@ fn create_with_all_parameters() -> DetailedResult {
                 }
                 "e" => {
                     match input.next() {
-                        Some(index) => match index.parse::<usize>() {
-                            Ok(index) => normal_unwrap!(edit_item(&mut config, index)?),
+                        Some(i) => match i.parse::<usize>() {
+                            Ok(i) => {
+                                edit_item(&mut config, i)?.error_println(
+                                    ErrorPrintingArgs::new().message("编辑过程中遇到了问题"),
+                                );
+                            }
                             Err(_) => eprintln!("输入的序号不是一个有效数字"),
                         },
                         None => eprintln!("缺少参数: 序号"),
@@ -129,7 +140,12 @@ fn create_with_all_parameters() -> DetailedResult {
         let mut time = Time::default();
         let mut command = Command::default();
 
-        normal_unwrap!(parse_item(input, &mut time, &mut command)?);
+        if parse_item(input, &mut time, &mut command)?
+            .error_println_then(ErrorPrintingArgs::new())
+            .is_err()
+        {
+            continue;
+        }
 
         let len = config.len();
         if len != 0 && config[len - 1].time == time {
@@ -142,15 +158,18 @@ fn create_with_all_parameters() -> DetailedResult {
 
     fs::write(CONFIG_PATH, serde_yaml::to_string(&config)?)?;
 
-    println!();
-    println!("很好, 配置已写入文件, 正在尝试读取...");
-    println!();
-
     Ok(Ok(()))
 }
 
-fn parse_item(mut input: SplitWhitespace, time: &mut Time, command: &mut Command) -> DetailedResult {
-    normal_unwrap!(parse_time(&mut input, time)?);
+fn parse_item(
+    mut input: SplitWhitespace,
+    time: &mut Time,
+    command: &mut Command,
+) -> DetailedResult {
+    let parse_time_result = parse_time(&mut input, time);
+    if let Err(e) = parse_time_result? {
+        return Ok(Err(e));
+    }
 
     match input.next() {
         Some(audio) => match audio.to_lowercase().as_str() {
@@ -225,7 +244,7 @@ fn parse_time(input: &mut SplitWhitespace, time: &mut Time) -> DetailedResult {
     Ok(Ok(()))
 }
 
-fn delete_item(config: &mut Vec<Item>, index: usize) -> DetailedResult {
+fn delete_item(config: &mut Vec<Item>, index: usize, next_index: &mut usize) -> DetailedResult {
     Ok(Ok(()))
 }
 

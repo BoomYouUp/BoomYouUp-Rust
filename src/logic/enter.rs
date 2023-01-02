@@ -1,6 +1,6 @@
 use crate::error::{FinalResult, UnexpectedError};
 use crate::logic::create_config::create_config;
-use crate::logic::start::start;
+use crate::logic::run::run;
 use crate::structs::item::Item;
 use crate::CONFIG_PATH;
 use fs::remove_file;
@@ -45,7 +45,7 @@ pub fn enter() -> FinalResult {
     let input = input.trim();
 
     match input {
-        "1" => start(),
+        "1" => run(),
         "2" => reconfigure(),
         _ => enter(),
     }
