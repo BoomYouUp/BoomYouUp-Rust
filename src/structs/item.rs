@@ -170,7 +170,7 @@ pub trait AddCommand {
     );
 
     fn add_command_reverse_with_index(&mut self, time: Time, command: Command, index: usize) {
-        self._add_command_reverse(time, command, -1..index);
+        self._add_command_reverse(time, command, 0..index);
     }
 
     fn add_command_reverse(&mut self, time: Time, command: Command);
@@ -249,7 +249,7 @@ impl AddCommand for Vec<Item> {
     }
 
     fn add_command_reverse(&mut self, time: Time, command: Command) {
-        self.add_command_reverse_with_index(time, command, self.len() - 1);
+        self.add_command_reverse_with_index(time, command, self.len());
     }
 }
 
