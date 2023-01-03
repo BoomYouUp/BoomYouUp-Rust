@@ -1,12 +1,12 @@
 use fs::remove_file;
-use std::{fs, io};
 use std::io::Write;
+use std::{fs, io};
 
-use crate::CONFIG_PATH;
 use crate::error::{FinalResult, UnexpectedError};
 use crate::logic::create_config::create_config;
 use crate::logic::run::run;
 use crate::structs::item::Item;
+use crate::CONFIG_PATH;
 
 pub fn enter() -> FinalResult {
     let config_str = fs::read_to_string(CONFIG_PATH);

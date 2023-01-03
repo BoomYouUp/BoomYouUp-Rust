@@ -1,14 +1,14 @@
 use io::{stdin, stdout};
-use std::{fs, io};
 use std::io::Write;
 use std::str::SplitWhitespace;
+use std::{fs, io};
 
-use crate::CONFIG_PATH;
-use crate::error::{DetailedResult, FinalResult, NormalError, PrintingArgs, ResultPrinting};
 use crate::error::NormalError::{Cancelled, Input, NumberFormat};
+use crate::error::{DetailedResult, FinalResult, NormalError, PrintingArgs, ResultPrinting};
 use crate::logic::enter::enter;
 use crate::structs::item::{AddCommand, Command, Item, Time};
 use crate::utils::stdio::print_and_readln;
+use crate::CONFIG_PATH;
 
 pub fn create_config() -> FinalResult {
     println!("请选择配置方式");

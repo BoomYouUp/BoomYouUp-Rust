@@ -169,12 +169,7 @@ pub trait AddCommand {
         range: R,
     );
 
-    fn add_command_reverse_with_index(
-        &mut self,
-        time: Time,
-        command: Command,
-        index: usize,
-    ) {
+    fn add_command_reverse_with_index(&mut self, time: Time, command: Command, index: usize) {
         self._add_command_reverse(time, command, -1..index);
     }
 
@@ -217,7 +212,9 @@ impl AddCommand for Vec<Item> {
         self._add_command(time, command, index..self.len());
     }
 
-    fn _add_command_reverse<R: RangeBounds<usize> + Iterator<Item=usize> + DoubleEndedIterator>(
+    fn _add_command_reverse<
+        R: RangeBounds<usize> + Iterator<Item=usize> + DoubleEndedIterator,
+    >(
         &mut self,
         time: Time,
         command: Command,

@@ -1,17 +1,17 @@
-use std::{fs, thread};
 use std::ffi::OsStr;
 use std::io::Write;
 use std::path::Path;
 use std::time::Duration;
+use std::{fs, thread};
 
 use chrono::{Local, Timelike};
 use notify_rust::Notification;
 use opener::open;
 use soloud::{AudioExt, LoadExt, Soloud, Wav};
 
-use crate::{APP_NAME, CONFIG_PATH};
 use crate::error::FinalResult;
 use crate::structs::item::{AddCommand, Command, Item, Time};
+use crate::{APP_NAME, CONFIG_PATH};
 
 pub fn run() -> FinalResult {
     let mut config = serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(CONFIG_PATH)?)?;
