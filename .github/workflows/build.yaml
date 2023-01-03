@@ -32,11 +32,11 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
           override: true
+      - uses: Swatinem/rust-cache@v2
       - name: Change version
         run: |
           cargo install cargo-edit
           cargo set-version -m ${{ github.sha }}
-      - uses: Swatinem/rust-cache@v2
       - name: Build
         uses: actions-rs/cargo@v1
         with:
@@ -76,11 +76,11 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
           override: true
+      - uses: Swatinem/rust-cache@v2
       - name: Change version
         run: |
           cargo install cargo-edit
           cargo set-version -m ${{ github.sha }}
-      - uses: Swatinem/rust-cache@v2
       - name: Build
         uses: actions-rs/cargo@v1
         with:
@@ -120,11 +120,11 @@ jobs:
           toolchain: stable
           target: ${{ matrix.target }}
           override: true
+      - uses: Swatinem/rust-cache@v2
       - name: Change version
         run: |
           cargo install cargo-edit
           cargo set-version -m ${{ github.sha }}
-      - uses: Swatinem/rust-cache@v2
       - name: Build
         uses: actions-rs/cargo@v1
         with:
