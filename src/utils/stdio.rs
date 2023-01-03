@@ -8,5 +8,5 @@ pub fn print_and_readln(message: &str) -> FinalResult<String> {
     let mut input = String::new();
     stdin().read_line(&mut input)?;
 
-    Ok(input)
+    Ok(input.trim().to_string())
 }

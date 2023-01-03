@@ -37,7 +37,6 @@ impl From<serde_yaml::Error> for UnexpectedError {
 pub enum NormalError {
     Input,
     NumberFormat,
-    Finished,
     Cancelled,
 }
 
@@ -46,7 +45,6 @@ impl std::fmt::Display for NormalError {
         match self {
             NormalError::Input => write!(f, "输入错误"),
             NormalError::NumberFormat => write!(f, "数字格式错误"),
-            NormalError::Finished => write!(f, "操作已完成"),
             NormalError::Cancelled => write!(f, "操作已取消"),
         }
     }

@@ -252,29 +252,3 @@ impl AddCommand for Vec<Item> {
         self.add_command_reverse_with_index(time, command, self.len());
     }
 }
-
-pub fn add_command(config: &mut Vec<Item>, time: Time, command: Command, search_index: usize) {
-    for i in search_index..config.len() {
-        match config[i].time.cmp(&time) {
-            Ordering::Greater => {
-                config.insert(
-                    i,
-                    Item {
-                        time,
-                        commands: vec![command],
-                    },
-                );
-                return;
-            }
-            Ordering::Equal => {
-                config[i].commands.push(command);
-                return;
-            }
-            Ordering::Less => {}
-        }
-    }
-    config.push(Item {
-        time,
-        commands: vec![command],
-    });
-}
