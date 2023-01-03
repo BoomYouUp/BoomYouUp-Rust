@@ -1,5 +1,4 @@
-use io::{stdin, stdout};
-use std::io::Write;
+use io::stdin;
 use std::str::SplitWhitespace;
 use std::{fs, io};
 
@@ -14,14 +13,7 @@ pub fn create_config() -> FinalResult {
     println!("请选择配置方式");
     println!("1. 输入所有参数进行配置");
     println!("2. 交互式配置");
-    print!("请输入: ");
-    stdout().flush()?;
-
-    let mut input = String::new();
-    stdin().read_line(&mut input)?;
-    let input = input.trim();
-
-    let result = match input {
+    let result = match print_and_readln("请输入：")?.as_str() {
         "1" => create_with_all_parameters(),
         "2" => create_config_by_interactive(),
         _ => Ok(Err(Input)),
@@ -211,7 +203,8 @@ fn create_config_by_interactive() -> DetailedResult {
 
 fn parse_item_by_interactive() -> DetailedResult<(Time, Command)> {
     let (time, _) =
-        match parse_time(print_and_readln("请输入时间（时 分 秒）：")?.split_whitespace())? {
+        match parse_time(print_and_readln("请输入时间（时 分 秒）：")?.split_whitespace())?
+        {
             Ok((t, i)) => (t, i),
             Err(e) => return Ok(Err(e)),
         };

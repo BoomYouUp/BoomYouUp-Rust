@@ -7,6 +7,7 @@ use crate::logic::create_config::create_config;
 use crate::logic::run::run;
 use crate::structs::item::Item;
 use crate::CONFIG_PATH;
+use crate::utils::stdio::print_and_readln;
 
 pub fn enter() -> FinalResult {
     let config_str = fs::read_to_string(CONFIG_PATH);
@@ -38,14 +39,7 @@ pub fn enter() -> FinalResult {
     println!("请问你想作甚?");
     println!("1. 开始运行");
     println!("2. 重新配置");
-    print!("请输入: ");
-    io::stdout().flush()?;
-
-    let mut input = String::new();
-    io::stdin().read_line(&mut input)?;
-    let input = input.trim();
-
-    match input {
+    match print_and_readln("请输入：")?.as_str() {
         "1" => run(),
         "2" => reconfigure(),
         _ => enter(),
