@@ -1,17 +1,17 @@
+use std::{fs, thread};
 use std::ffi::OsStr;
 use std::io::Write;
 use std::path::Path;
 use std::time::Duration;
-use std::{fs, thread};
 
 use chrono::{Local, Timelike};
 use notify_rust::Notification;
 use opener::open;
 use soloud::{AudioExt, LoadExt, Soloud, Wav};
 
+use crate::{APP_NAME, CONFIG_PATH};
 use crate::error::FinalResult;
-use crate::structs::item::{Command, Item, Time};
-use crate::{add_command_reverse, APP_NAME, CONFIG_PATH};
+use crate::structs::item::{AddCommand, Command, Item, Time};
 
 pub fn run() -> FinalResult {
     let mut config = serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(CONFIG_PATH)?)?;
@@ -179,16 +179,15 @@ fn parse_config(config: &mut Vec<Item>) {
 
         for j in 0..item.commands.len() {
             if item.commands[j].notify != -1 {
-                add_command_reverse!(
-                    reference,
+                reference.add_command_reverse(
                     item.time - Time::second(item.commands[j].notify as usize),
                     Command {
                         command: item.commands[j].command.clone(),
                         parameters: item.commands[j].parameters.clone(),
                         notify: -2,
                         ..item.commands[j]
-                    }
-                );
+                    },
+                )
             }
         }
     }

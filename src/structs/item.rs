@@ -1,7 +1,8 @@
-use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::fmt::Display;
-use std::ops::{Add, Sub};
+use std::ops::{Add, RangeBounds, Sub};
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Item {
@@ -147,6 +148,114 @@ impl Default for Command {
     }
 }
 
+pub trait AddCommand {
+    fn _add_command<R: RangeBounds<usize> + Iterator<Item=usize> + DoubleEndedIterator>(
+        &mut self,
+        time: Time,
+        command: Command,
+        range: R,
+    );
+
+    fn add_command_with_index(&mut self, time: Time, command: Command, index: usize);
+
+    fn add_command(&mut self, time: Time, command: Command) {
+        self.add_command_with_index(time, command, 0);
+    }
+
+    fn _add_command_reverse<R: RangeBounds<usize> + Iterator<Item=usize> + DoubleEndedIterator>(
+        &mut self,
+        time: Time,
+        command: Command,
+        range: R,
+    );
+
+    fn add_command_reverse_with_index(
+        &mut self,
+        time: Time,
+        command: Command,
+        index: usize,
+    ) {
+        self._add_command_reverse(time, command, -1..index);
+    }
+
+    fn add_command_reverse(&mut self, time: Time, command: Command);
+}
+
+impl AddCommand for Vec<Item> {
+    fn _add_command<R: RangeBounds<usize> + IntoIterator<Item=usize> + DoubleEndedIterator>(
+        &mut self,
+        time: Time,
+        command: Command,
+        range: R,
+    ) {
+        for i in range {
+            match self[i].time.cmp(&time) {
+                Ordering::Greater => {
+                    self.insert(
+                        i,
+                        Item {
+                            time,
+                            commands: vec![command],
+                        },
+                    );
+                    return;
+                }
+                Ordering::Equal => {
+                    self[i].commands.push(command);
+                    return;
+                }
+                Ordering::Less => {}
+            }
+        }
+        self.push(Item {
+            time,
+            commands: vec![command],
+        });
+    }
+
+    fn add_command_with_index(&mut self, time: Time, command: Command, index: usize) {
+        self._add_command(time, command, index..self.len());
+    }
+
+    fn _add_command_reverse<R: RangeBounds<usize> + Iterator<Item=usize> + DoubleEndedIterator>(
+        &mut self,
+        time: Time,
+        command: Command,
+        range: R,
+    ) {
+        for i in range.rev() {
+            match self[i].time.cmp(&time) {
+                Ordering::Less => {
+                    self.insert(
+                        i + 1,
+                        Item {
+                            time,
+                            commands: vec![command],
+                        },
+                    );
+                    return;
+                }
+                Ordering::Equal => {
+                    self[i].commands.push(command);
+                    return;
+                }
+                Ordering::Greater => {}
+            }
+        }
+        self.insert(
+            0,
+            Item {
+                time,
+                commands: vec![command],
+            },
+        );
+    }
+
+    fn add_command_reverse(&mut self, time: Time, command: Command) {
+        self.add_command_reverse_with_index(time, command, self.len() - 1);
+    }
+}
+
 pub fn add_command(config: &mut Vec<Item>, time: Time, command: Command, search_index: usize) {
     for i in search_index..config.len() {
         match config[i].time.cmp(&time) {
@@ -171,52 +280,4 @@ pub fn add_command(config: &mut Vec<Item>, time: Time, command: Command, search_
         time,
         commands: vec![command],
     });
-}
-
-#[macro_export]
-macro_rules! add_command {
-    ($config:expr, $time:expr, $command:expr) => {
-        $crate::structs::item::add_command($config, $time, $command, 0);
-    };
-}
-
-pub fn add_command_reverse(
-    config: &mut Vec<Item>,
-    time: Time,
-    command: Command,
-    search_index: usize,
-) {
-    for i in (0..search_index).rev() {
-        match config[i].time.cmp(&time) {
-            Ordering::Less => {
-                config.insert(
-                    i + 1,
-                    Item {
-                        time,
-                        commands: vec![command],
-                    },
-                );
-                return;
-            }
-            Ordering::Equal => {
-                config[i].commands.push(command);
-                return;
-            }
-            Ordering::Greater => {}
-        }
-    }
-    config.insert(
-        0,
-        Item {
-            time,
-            commands: vec![command],
-        },
-    );
-}
-
-#[macro_export]
-macro_rules! add_command_reverse {
-    ($config:expr, $time:expr, $command:expr) => {
-        $crate::structs::item::add_command_reverse($config, $time, $command, $config.len());
-    };
 }

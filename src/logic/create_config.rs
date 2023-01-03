@@ -1,14 +1,14 @@
 use io::{stdin, stdout};
+use std::{fs, io};
 use std::io::Write;
 use std::str::SplitWhitespace;
-use std::{fs, io};
 
+use crate::CONFIG_PATH;
+use crate::error::{DetailedResult, FinalResult, NormalError, PrintingArgs, ResultPrinting};
 use crate::error::NormalError::{Cancelled, Input, NumberFormat};
-use crate::error::{DetailedResult, FinalResult, PrintingArgs, ResultPrinting};
 use crate::logic::enter::enter;
-use crate::structs::item::{Command, Item, Time};
+use crate::structs::item::{AddCommand, Command, Item, Time};
 use crate::utils::stdio::print_and_readln;
-use crate::{add_command, CONFIG_PATH};
 
 pub fn create_config() -> FinalResult {
     println!("请选择配置方式");
@@ -111,13 +111,13 @@ fn create_with_all_parameters() -> DetailedResult {
         let time: Time;
         let command: Command;
 
-        match parse_item(input)? {
+        match parse_item_with_all_parameters(input)? {
             Ok((t, c)) => {
                 time = t;
                 command = c;
             }
             Err(e) => {
-                e.result_println_then(PrintingArgs::new());
+                e.result_println_then(PrintingArgs::normal());
                 continue;
             }
         }
@@ -128,7 +128,7 @@ fn create_with_all_parameters() -> DetailedResult {
             continue;
         }
 
-        add_command!(&mut config, time, command);
+        config.add_command(time, command);
     }
 
     fs::write(CONFIG_PATH, serde_yaml::to_string(&config)?)?;
@@ -136,9 +136,9 @@ fn create_with_all_parameters() -> DetailedResult {
     Ok(Ok(()))
 }
 
-fn parse_item(mut input: SplitWhitespace) -> DetailedResult<(Time, Command)> {
-    let time: Time = match parse_time(&mut input)? {
-        Ok(t) => t,
+fn parse_item_with_all_parameters(mut input: SplitWhitespace) -> DetailedResult<(Time, Command)> {
+    let (time, mut input) = match parse_time(input)? {
+        Ok((t, i)) => (t, i),
         Err(e) => return Ok(Err(e)),
     };
     let mut command = Command::default();
@@ -170,7 +170,75 @@ fn parse_item(mut input: SplitWhitespace) -> DetailedResult<(Time, Command)> {
     Ok(Ok((time, command)))
 }
 
-fn parse_time(input: &mut SplitWhitespace) -> DetailedResult<Time> {
+fn create_config_by_interactive() -> DetailedResult {
+    println!("欢迎使用交互式配置创建器");
+    println!();
+
+    let mut config: Vec<Item> = Vec::new();
+
+    loop {
+        let (time, command) = match parse_item_by_interactive()? {
+            Ok((t, c)) => (t, c),
+            Err(e) => match e {
+                NormalError::Finished => break,
+                _ => {
+                    e.result_println_then(PrintingArgs::normal());
+                    continue;
+                }
+            },
+        };
+
+        config.add_command(time, command);
+    }
+
+    Ok(Ok(()))
+}
+
+fn parse_item_by_interactive() -> DetailedResult<(Time, Command)> {
+    let (time, _) =
+        match parse_time(print_and_readln("请输入时间 [时 分 秒] ")?.split_whitespace())? {
+            Ok((t, i)) => (t, i),
+            Err(e) => return Ok(Err(e)),
+        };
+
+    let command = Command {
+        command: print_and_readln("请输入命令：")?,
+        parameters: print_and_readln("请输入参数（可选）：")?,
+        audio: print_and_readln("是否使用内置播放器播放音频 [Y/n] ")?
+            .to_lowercase()
+            .as_str()
+            != "n",
+        notify: match get_notify()? {
+            Ok(n) => n,
+            Err(e) => return Ok(Err(e)),
+        },
+    };
+
+    if print_and_readln("是否继续添加任务 [Y/n] ")?
+        .to_lowercase()
+        .as_str()
+        == "n"
+    {
+        return Ok(Err(Cancelled));
+    }
+
+    Ok(Ok((time, command)))
+}
+
+fn get_notify() -> DetailedResult<isize> {
+    if print_and_readln("是否发送通知 [y/N] ")? == "y" {
+        Ok(
+            match print_and_readln("请输入发送通知提前的时间：")?.parse::<isize>() {
+                Ok(t) => Ok(t),
+                Err(_) => Err(NumberFormat),
+            },
+        )
+    } else {
+        Ok(Ok(-1))
+    }
+}
+
+fn parse_time(mut input: SplitWhitespace) -> DetailedResult<(Time, SplitWhitespace)> {
     let mut time = Time::default();
 
     match input.next() {
@@ -215,19 +283,5 @@ fn parse_time(input: &mut SplitWhitespace) -> DetailedResult<Time> {
         None => return Ok(Err(Input)),
     }
 
-    Ok(Ok(time))
-}
-
-fn create_config_by_interactive() -> DetailedResult {
-    println!("欢迎使用交互式配置创建器");
-    println!();
-
-    let mut config: Vec<Item> = Vec::new();
-
-    loop {
-        let input = print_and_readln("请输入时间（时 分 秒）：")?;
-        let time = parse_time(&mut input.split_whitespace())?;
-    }
-
-    Ok(Ok(()))
+    Ok(Ok((time, input)))
 }

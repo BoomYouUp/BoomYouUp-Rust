@@ -1,11 +1,12 @@
+use fs::remove_file;
+use std::{fs, io};
+use std::io::Write;
+
+use crate::CONFIG_PATH;
 use crate::error::{FinalResult, UnexpectedError};
 use crate::logic::create_config::create_config;
 use crate::logic::run::run;
 use crate::structs::item::Item;
-use crate::CONFIG_PATH;
-use fs::remove_file;
-use std::io::Write;
-use std::{fs, io};
 
 pub fn enter() -> FinalResult {
     let config_str = fs::read_to_string(CONFIG_PATH);
@@ -61,9 +62,7 @@ fn reconfigure() -> FinalResult {
     let mut input = String::new();
     io::stdin().read_line(&mut input)?;
 
-    let input = input.trim();
-
-    match input {
+    match input.trim() {
         "Y" | "y" => {
             remove_file(CONFIG_PATH)?;
             create_config()
