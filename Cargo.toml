@@ -7,12 +7,12 @@ edition = "2021"
 
 [dependencies]
 chrono = { version = "0", features = ["clock"] }
+clap = { version = "4.0.32", features = ["derive", "unicode"] }
 crossterm = "0"
 notify-rust = "4"
 prettytable-rs = "0"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0"
-soloud = "1"
+soloud = { version = "1", default-features = false, features = ["sdl2-static"] }
 
 opener = { path = "libs/opener" }
-clap = { version = "4.0.32", features = ["derive", "unicode"] }
