@@ -35,7 +35,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Configure Cargo
         run: |
-          cargo install cargo-edit cargo-outdir
+          cargo install cargo-edit
           cargo set-version -m ${{ github.sha }}
       - name: Build
         uses: actions-rs/cargo@v1
@@ -43,15 +43,13 @@ jobs:
           use-cross: ${{ matrix.cross }}
           command: build
           args: --verbose --target ${{ matrix.target }}${{ matrix.arg }}
-      - name: Get outdir
-        run: echo "OUTDIR=$(cargo out --no-names)" >> $GITHUB_ENV
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}-${{ matrix.type-name }}-${{ github.sha }}
           path: |
             target/${{ matrix.target }}/${{ matrix.type }}/boom_you_up_r*
-            ${{ env.OUTDIR }}
+            target/${{ matrix.target }}/${{ matrix.type }}/build/boom_you_up_r*/out/*
   build-linux:
     name: Build Linux
     runs-on: ubuntu-latest
@@ -83,7 +81,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Configure Cargo
         run: |
-          cargo install cargo-edit cargo-outdir
+          cargo install cargo-edit
           cargo set-version -m ${{ github.sha }}
       - name: Build
         uses: actions-rs/cargo@v1
@@ -91,15 +89,13 @@ jobs:
           use-cross: ${{ matrix.cross }}
           command: build
           args: --verbose --target ${{ matrix.target }}${{ matrix.arg }}
-      - name: Get outdir
-        run: echo "OUTDIR=$(cargo out --no-names)" >> $GITHUB_ENV
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}-${{ matrix.type-name }}-${{ github.sha }}
           path: |
             target/${{ matrix.target }}/${{ matrix.type }}/boom_you_up_r*
-            ${{ env.OUTDIR }}
+            target/${{ matrix.target }}/${{ matrix.type }}/build/boom_you_up_r*/out/*
   build-macos:
     name: Build MacOS
     runs-on: macos-latest
@@ -131,7 +127,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Configure Cargo
         run: |
-          cargo install cargo-edit cargo-outdir
+          cargo install cargo-edit
           cargo set-version -m ${{ github.sha }}
       - name: Build
         uses: actions-rs/cargo@v1
@@ -139,12 +135,10 @@ jobs:
           use-cross: ${{ matrix.cross }}
           command: build
           args: --verbose --target ${{ matrix.target }}${{ matrix.arg }}
-      - name: Get outdir
-        run: echo "OUTDIR=$(cargo out --no-names)" >> $GITHUB_ENV
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}-${{ matrix.type-name }}-${{ github.sha }}
           path: |
             target/${{ matrix.target }}/${{ matrix.type }}/boom_you_up_r*
-            ${{ env.OUTDIR }}
+            target/${{ matrix.target }}/${{ matrix.type }}/build/boom_you_up_r*/out/*
