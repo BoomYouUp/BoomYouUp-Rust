@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
-use crate::DEFAULT_CONFIG_PATH;
+static DEFAULT_CONFIG_PATH: &str = "config.yaml";
 
 #[derive(Debug, Parser)]
 #[command(version)]

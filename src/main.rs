@@ -16,8 +16,6 @@ mod logic;
 mod structs;
 mod utils;
 
-static DEFAULT_CONFIG_PATH: &str = "config.yaml";
-
 static APP_NAME: &str = "BoomYouUpR";
 
 fn main() {
