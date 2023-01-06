@@ -122,7 +122,7 @@ BoomYouUpR 在 2022 年的最后一天（12-31）支持了 Linux 系统，这是
 
 ## 示例配置
 
-1. [南科大附中打铃](examples/hsas_ringing)
+1. [南科大附中打铃](configuration_examples/hsas_ringing)
 2. 完善中...
 
 ## 许可
