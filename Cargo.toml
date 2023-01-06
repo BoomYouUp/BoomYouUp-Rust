@@ -13,6 +13,6 @@ notify-rust = "4"
 prettytable-rs = "0"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0"
-soloud = { version = "1", default-features = false, features = ["sdl2-static"] }
+soloud = "1"
 
 opener = { path = "libs/opener" }
