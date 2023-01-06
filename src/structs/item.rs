@@ -149,7 +149,7 @@ impl Default for Command {
 }
 
 pub trait AddCommand {
-    fn _add_command<R: RangeBounds<usize> + Iterator<Item=usize> + DoubleEndedIterator>(
+    fn _add_command<R: RangeBounds<usize> + Iterator<Item = usize> + DoubleEndedIterator>(
         &mut self,
         time: Time,
         command: Command,
@@ -162,7 +162,7 @@ pub trait AddCommand {
         self.add_command_with_index(time, command, 0);
     }
 
-    fn _add_command_reverse<R: RangeBounds<usize> + Iterator<Item=usize> + DoubleEndedIterator>(
+    fn _add_command_reverse<R: RangeBounds<usize> + Iterator<Item = usize> + DoubleEndedIterator>(
         &mut self,
         time: Time,
         command: Command,
@@ -177,7 +177,7 @@ pub trait AddCommand {
 }
 
 impl AddCommand for Vec<Item> {
-    fn _add_command<R: RangeBounds<usize> + IntoIterator<Item=usize> + DoubleEndedIterator>(
+    fn _add_command<R: RangeBounds<usize> + IntoIterator<Item = usize> + DoubleEndedIterator>(
         &mut self,
         time: Time,
         command: Command,
@@ -213,7 +213,7 @@ impl AddCommand for Vec<Item> {
     }
 
     fn _add_command_reverse<
-        R: RangeBounds<usize> + Iterator<Item=usize> + DoubleEndedIterator,
+        R: RangeBounds<usize> + Iterator<Item = usize> + DoubleEndedIterator,
     >(
         &mut self,
         time: Time,

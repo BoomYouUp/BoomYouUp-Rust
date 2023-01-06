@@ -1,3 +1,3 @@
-mod create_config;
-pub mod enter;
-mod run;
+pub mod create_config;
+pub mod functions;
+pub mod run;

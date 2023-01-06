@@ -1,37 +1,28 @@
 use io::stdin;
+use std::path::PathBuf;
 use std::str::SplitWhitespace;
 use std::{fs, io};
 
 use crate::error::NormalError::{Cancelled, Input, NumberFormat};
 use crate::error::{DetailedResult, FinalResult, PrintingArgs, ResultPrinting};
-use crate::logic::enter::enter;
 use crate::structs::item::{AddCommand, Command, Item, Time};
 use crate::utils::stdio::print_and_readln;
-use crate::CONFIG_PATH;
 
-pub fn create_config() -> FinalResult {
+pub fn create_config(config_path: &PathBuf) -> FinalResult {
     println!("请选择配置方式");
     println!("1. 输入所有参数进行配置");
     println!("2. 交互式配置");
-    let result = match print_and_readln("请输入：")?.as_str() {
-        "1" => create_with_all_parameters(),
-        "2" => create_config_by_interactive(),
+    match print_and_readln("请输入：")?.as_str() {
+        "1" => create_with_all_parameters(config_path),
+        "2" => create_config_by_interactive(config_path),
         _ => Ok(Err(Input)),
-    }?;
+    }?
+    .result_println(PrintingArgs::normal());
 
-    println!();
-
-    match result {
-        Ok(()) => return enter(),
-        Err(_) => result.result_println(PrintingArgs::normal()),
-    }
-
-    println!();
-
-    create_config()
+    Ok(())
 }
 
-fn create_with_all_parameters() -> DetailedResult {
+fn create_with_all_parameters(config_path: &PathBuf) -> DetailedResult {
     println!("接下来请在窗口中输入所有参数进行配置，每行一个，格式：");
     println!();
     println!("时间 是否使用内置播放器 发送通知 文件路径 参数");
@@ -123,7 +114,7 @@ fn create_with_all_parameters() -> DetailedResult {
         config.add_command(time, command);
     }
 
-    fs::write(CONFIG_PATH, serde_yaml::to_string(&config)?)?;
+    fs::write(config_path, serde_yaml::to_string(&config)?)?;
 
     Ok(Ok(()))
 }
@@ -162,7 +153,7 @@ fn parse_item_with_all_parameters(input: SplitWhitespace) -> DetailedResult<(Tim
     Ok(Ok((time, command)))
 }
 
-fn create_config_by_interactive() -> DetailedResult {
+fn create_config_by_interactive(config_path: &PathBuf) -> DetailedResult {
     println!("欢迎使用交互式配置创建器");
 
     let mut config: Vec<Item> = Vec::new();
@@ -196,7 +187,7 @@ fn create_config_by_interactive() -> DetailedResult {
         config.add_command(time, command);
     }
 
-    fs::write(CONFIG_PATH, serde_yaml::to_string(&config)?)?;
+    fs::write(config_path, serde_yaml::to_string(&config)?)?;
 
     Ok(Ok(()))
 }

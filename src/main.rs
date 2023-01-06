@@ -1,22 +1,41 @@
+use clap::Parser;
+
+use args::Actions::{Configure, Run, Test};
+use error::PrintingArgs;
+use logic::create_config::create_config;
+use logic::functions::{execute, play_audio, send_notification};
+use logic::run::run;
+use Functions::{Execute, PlayAudio, SendNotification};
+
+use crate::args::{Args, Functions};
 use crate::error::ResultPrinting;
 
+mod args;
 mod error;
 mod logic;
 mod structs;
 mod utils;
 
-static CONFIG_PATH: &str = "config.yaml";
+static DEFAULT_CONFIG_PATH: &str = "config.yaml";
 
 static APP_NAME: &str = "BoomYouUpR";
-static APP_CHINESE_NAME: &str = "炸你起床R";
 
 fn main() {
-    println!(
-        "{} {} 版本 {} 南科大附中 胡睿邈 于 2020-12-25 编写",
-        APP_NAME,
-        APP_CHINESE_NAME,
-        env!("CARGO_PKG_VERSION")
-    );
-
-    logic::enter::enter().result_println(error::PrintingArgs::new());
+    match Args::parse().action {
+        Run { config } => run(&config),
+        Configure { config } => create_config(&config),
+        Test { function } => {
+            match function {
+                Execute {
+                    command,
+                    parameters,
+                } => execute(&command, parameters),
+                PlayAudio { path } => play_audio(path),
+                SendNotification => send_notification("测试"),
+            }
+            .result_println(PrintingArgs::normal());
+            Ok(())
+        }
+    }
+    .result_println(PrintingArgs::new());
 }

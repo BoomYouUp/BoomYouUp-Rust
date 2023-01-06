@@ -11,9 +11,9 @@ pub enum UnexpectedError {
 impl std::fmt::Display for UnexpectedError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            UnexpectedError::Io(e) => write!(f, "I/O 错误: {}", e),
+            UnexpectedError::Io(e) => write!(f, "I/O 错误：{}", e),
             UnexpectedError::SerializationAndDeserialization(e) => {
-                write!(f, "序列化和反序列化错误: {}", e)
+                write!(f, "序列化和反序列化错误：{}", e)
             }
         }
     }
@@ -38,6 +38,9 @@ pub enum NormalError {
     Input,
     NumberFormat,
     Cancelled,
+    Execution(opener::OpenError),
+    Play(soloud::SoloudError),
+    Notify(notify_rust::error::Error),
 }
 
 impl std::fmt::Display for NormalError {
@@ -46,11 +49,32 @@ impl std::fmt::Display for NormalError {
             NormalError::Input => write!(f, "输入错误"),
             NormalError::NumberFormat => write!(f, "数字格式错误"),
             NormalError::Cancelled => write!(f, "操作已取消"),
+            NormalError::Execution(e) => write!(f, "命令执行错误：{}", e),
+            NormalError::Play(e) => write!(f, "音频播放错误：{}", e),
+            NormalError::Notify(e) => write!(f, "通知发送错误：{}", e),
         }
     }
 }
 
 impl std::error::Error for NormalError {}
+
+impl From<opener::OpenError> for NormalError {
+    fn from(e: opener::OpenError) -> Self {
+        NormalError::Execution(e)
+    }
+}
+
+impl From<soloud::SoloudError> for NormalError {
+    fn from(e: soloud::SoloudError) -> Self {
+        NormalError::Play(e)
+    }
+}
+
+impl From<notify_rust::error::Error> for NormalError {
+    fn from(e: notify_rust::error::Error) -> Self {
+        NormalError::Notify(e)
+    }
+}
 
 pub struct PrintingArgs {
     pub message: Option<String>,
@@ -67,9 +91,10 @@ impl PrintingArgs {
         }
     }
 
-    pub fn message(mut self, message: &str) -> Self {
-        self.message = Some(message.to_string());
-        self
+    pub fn message(message: &str) -> Self {
+        PrintingArgs {
+            message: Some(message.to_string()),
+        }
     }
 }
 

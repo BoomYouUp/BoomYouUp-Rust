@@ -1,13 +1,13 @@
 [package]
 name = "boom_you_up_r"
-version = "0.3.0"
+version = "1.0.0-alpha01"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 chrono = { version = "0", features = ["clock"] }
-clap = { version = "4.0.32", features = ["derive", "unicode"] }
+clap = { version = "4", features = ["derive", "unicode"] }
 crossterm = "0"
 notify-rust = "4"
 prettytable-rs = "0"

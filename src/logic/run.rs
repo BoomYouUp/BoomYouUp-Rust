@@ -1,23 +1,18 @@
-use std::ffi::OsStr;
-use std::io::Write;
-use std::path::Path;
+use chrono::{Local, Timelike};
+use std::io::{stdout, Write};
+use std::path::PathBuf;
 use std::time::Duration;
 use std::{fs, thread};
 
-use chrono::{Local, Timelike};
-use notify_rust::Notification;
-use opener::open;
-use soloud::{AudioExt, LoadExt, Soloud, Wav};
-
-use crate::error::FinalResult;
+use crate::error::{FinalResult, PrintingArgs, ResultPrinting};
+use crate::logic::functions::{execute, play_audio, send_notification};
 use crate::structs::item::{AddCommand, Command, Item, Time};
-use crate::{APP_NAME, CONFIG_PATH};
 
-pub fn run() -> FinalResult {
-    let mut config = serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(CONFIG_PATH)?)?;
+pub fn run(config_path: &PathBuf) -> FinalResult {
+    let mut config = serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(config_path)?)?;
 
     config.sort_unstable_by(|a, b| a.time.cmp(&b.time));
-    match fs::write(CONFIG_PATH, serde_yaml::to_string(&config)?) {
+    match fs::write(config_path, serde_yaml::to_string(&config)?) {
         Ok(_) => {}
         Err(e) => {
             eprintln!("配置重新写入时遇到了错误: {}", e);
@@ -51,37 +46,13 @@ pub fn run() -> FinalResult {
                         }
                     );
 
-                    let result = Notification::new()
-                        .appname(APP_NAME)
-                        .summary("任务提醒")
-                        .body(&format!(
-                            "你为命令 {} 设置的提醒触发了\n来自 {}",
-                            command.command, APP_NAME
-                        ))
-                        .show();
-
-                    if let Err(e) = result {
-                        eprintln!("通知发送失败：{}", e);
-                    }
+                    send_notification(&command.command)
+                        .result_println(PrintingArgs::message("发送通知时遇到了问题"));
                 } else if command.audio {
                     println!("播放音频：{}", command.command);
-                    let clone = command.command.clone();
-                    thread::spawn(move || match Soloud::default() {
-                        Ok(player) => {
-                            let mut wav = Wav::default();
-                            match wav.load(Path::new(&clone)) {
-                                Ok(_) => {
-                                    player.play(&wav);
 
-                                    while player.active_voice_count() > 0 {
-                                        thread::sleep(Duration::from_millis(100));
-                                    }
-                                }
-                                Err(e) => eprintln!("音频解码失败：{}", e),
-                            }
-                        }
-                        Err(e) => eprintln!("音频播放器创建失败：{}", e),
-                    });
+                    play_audio(PathBuf::from(&command.command))
+                        .result_println(PrintingArgs::message("播放音频时遇到了问题"));
                 } else {
                     let parameters;
                     println!(
@@ -95,17 +66,22 @@ pub fn run() -> FinalResult {
                         }
                     );
 
-                    if let Err(e) = open(
-                        OsStr::new(&command.command),
-                        OsStr::new(&command.parameters),
-                    ) {
-                        eprintln!("命令执行错误：{}", e);
-                    }
+                    execute(
+                        &command.command,
+                        Some(
+                            command
+                                .parameters
+                                .split_whitespace()
+                                .map(|s| s.to_string())
+                                .collect(),
+                        ),
+                    )
+                    .result_println(PrintingArgs::message("执行命令时遇到了问题"));
                 }
                 println!();
             }
 
-            std::io::stdout().flush()?;
+            stdout().flush()?;
             update_next(&config, time, &mut next);
         }
 
