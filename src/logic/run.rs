@@ -34,6 +34,7 @@ pub fn run(config_path: &PathBuf) -> FinalResult {
         if time == next.time {
             for command in &next.commands {
                 if command.notify == -2 {
+                    let command = command.clone();
                     let parameters;
                     println!(
                         "为命令：{}{} 发送通知",
@@ -46,37 +47,45 @@ pub fn run(config_path: &PathBuf) -> FinalResult {
                         }
                     );
 
-                    send_notification(&command.command)
-                        .result_println(PrintingArgs::message("发送通知时遇到了问题"));
+                    thread::spawn(move || {
+                        send_notification(&command.command)
+                            .result_println(PrintingArgs::message("发送通知时遇到了问题"));
+                    });
                 } else if command.audio {
-                    println!("播放音频：{}", command.command);
+                    let path = command.command.clone();
+                    println!("播放音频：{}", path);
 
-                    play_audio(PathBuf::from(&command.command))
-                        .result_println(PrintingArgs::message("播放音频时遇到了问题"));
+                    thread::spawn(move || {
+                        play_audio(PathBuf::from(&path))
+                            .result_println(PrintingArgs::message("播放音频时遇到了问题"));
+                    });
                 } else {
-                    let parameters;
+                    let command = command.clone();
+                    let parameters_string;
                     println!(
                         "执行命令：{}{}",
                         command.command,
                         if command.parameters.is_empty() {
                             ""
                         } else {
-                            parameters = format!(" 参数：{}", command.parameters);
-                            &parameters
+                            parameters_string = format!(" 参数：{}", command.parameters);
+                            &parameters_string
                         }
                     );
 
-                    execute(
-                        &command.command,
-                        Some(
-                            command
-                                .parameters
-                                .split_whitespace()
-                                .map(|s| s.to_string())
-                                .collect(),
-                        ),
-                    )
-                    .result_println(PrintingArgs::message("执行命令时遇到了问题"));
+                    thread::spawn(move || {
+                        execute(
+                            &command.command,
+                            Some(
+                                command
+                                    .parameters
+                                    .split_whitespace()
+                                    .map(|s| s.to_string())
+                                    .collect(),
+                            ),
+                        )
+                            .result_println(PrintingArgs::message("执行命令时遇到了问题"));
+                    });
                 }
                 println!();
             }
