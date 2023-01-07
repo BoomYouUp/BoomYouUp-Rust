@@ -5,7 +5,7 @@ use std::{fs, io};
 
 use crate::error::NormalError::{Cancelled, Input, NumberFormat};
 use crate::error::{DetailedResult, FinalResult, PrintingArgs, ResultPrinting};
-use crate::structs::item::{AddCommand, Command, Item, Time};
+use crate::structs::config::{AddCommand, Command, Item, Time};
 use crate::utils::stdio::print_and_readln;
 
 pub fn create_config(config_path: &PathBuf) -> FinalResult {

@@ -77,24 +77,40 @@ impl From<notify_rust::error::Error> for NormalError {
 }
 
 pub struct PrintingArgs {
-    pub message: Option<String>,
+    pub ok_message: Option<String>,
+    pub err_message: String,
 }
 
 impl PrintingArgs {
-    pub fn new() -> Self {
-        PrintingArgs { message: None }
+    pub fn unexpected() -> Self {
+        PrintingArgs {
+            ok_message: None,
+            err_message: "错误".to_string(),
+        }
     }
 
     pub fn normal() -> Self {
         PrintingArgs {
-            message: Some("遇到了问题".to_string()),
+            ok_message: None,
+            err_message: "遇到了问题".to_string(),
         }
     }
 
-    pub fn message(message: &str) -> Self {
+    pub fn customized(err_message: &str) -> Self {
         PrintingArgs {
-            message: Some(message.to_string()),
+            ok_message: None,
+            err_message: err_message.to_string(),
         }
+    }
+
+    pub fn ok_message(mut self, message: &str) -> Self {
+        self.ok_message = Some(message.to_string());
+        self
+    }
+
+    pub fn err_message(mut self, message: &str) -> Self {
+        self.err_message = message.to_string();
+        self
     }
 }
 
@@ -110,15 +126,12 @@ impl<T, E: std::error::Error> ResultPrinting for Result<T, E> {
     fn result_println_then(&self, args: PrintingArgs) -> &Self {
         match self {
             Ok(_) => {
-                if let Some(message) = args.message {
+                if let Some(message) = args.ok_message {
                     println!("{message}");
                 }
             }
             Err(e) => {
-                eprintln!(
-                    "{}：{e}",
-                    args.message.unwrap_or_else(|| "错误".to_string())
-                );
+                eprintln!("{}：{e}", args.err_message);
             }
         }
 
@@ -128,10 +141,7 @@ impl<T, E: std::error::Error> ResultPrinting for Result<T, E> {
 
 impl<E: std::error::Error + _Error> ResultPrinting for E {
     fn result_println_then(&self, args: PrintingArgs) -> &Self {
-        eprintln!(
-            "{}：{self}",
-            args.message.unwrap_or_else(|| "错误".to_string())
-        );
+        eprintln!("{}：{self}", args.err_message);
 
         self
     }

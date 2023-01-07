@@ -57,4 +57,16 @@ pub enum Functions {
 
     /// 发送系统通知
     SendNotification,
+
+    /// 计时，计算到达指定时间需要的时长并在到达后提示
+    Time {
+        /// 时
+        hour: u8,
+
+        /// 分
+        minute: u8,
+
+        /// 秒
+        second: u8,
+    },
 }

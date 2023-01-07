@@ -1,3 +1,4 @@
+use chrono::{Local, Timelike};
 use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
@@ -7,6 +8,7 @@ use opener::open;
 use soloud::{AudioExt, LoadExt, Soloud, Wav};
 
 use crate::error::NormalResult;
+use crate::structs::config::Time;
 use crate::APP_NAME;
 
 pub fn execute(command: &String, parameters: Option<Vec<String>>) -> NormalResult {
@@ -37,6 +39,47 @@ pub fn send_notification(command: &str) -> NormalResult {
             command, APP_NAME
         ))
         .show()?;
+
+    Ok(())
+}
+
+pub fn time(hour: u8, minute: u8, second: u8) -> NormalResult {
+    let now = Local::now();
+
+    println!(
+        "现在是 {} 时 {} 分 {} 秒 {} 毫秒",
+        now.hour(),
+        now.minute(),
+        now.second(),
+        now.nanosecond() / 1_000_000
+    );
+
+    let duration = Time {
+        hour,
+        minute,
+        second,
+    }
+    .duration_from(Local::now());
+
+    println!(
+        "等待 {} 时 {} 分 {} 秒 {} 毫秒",
+        duration.as_secs() / 3600,
+        duration.as_secs() % 3600 / 60,
+        duration.as_secs() % 60,
+        duration.subsec_millis()
+    );
+
+    thread::sleep(duration);
+
+    let now = Local::now();
+
+    println!(
+        "现在是 {} 时 {} 分 {} 秒 {} 毫秒",
+        now.hour(),
+        now.minute(),
+        now.second(),
+        now.nanosecond() / 1_000_000
+    );
 
     Ok(())
 }

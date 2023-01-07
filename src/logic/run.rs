@@ -1,18 +1,19 @@
-use chrono::{Local, Timelike};
+use chrono::Local;
 use std::io::{stdout, Write};
 use std::path::PathBuf;
-use std::time::Duration;
 use std::{fs, thread};
 
 use crate::error::{FinalResult, PrintingArgs, ResultPrinting};
 use crate::logic::functions::{execute, play_audio, send_notification};
-use crate::structs::item::{AddCommand, Command, Item, Time};
+use crate::structs::config::{AddCommand, Command, Config, Item, Time};
 
 pub fn run(config_path: &PathBuf) -> FinalResult {
-    let mut config = serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(config_path)?)?;
+    let mut config = Config::new(
+        serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(config_path)?)?,
+        Time::from(Local::now()),
+    );
 
-    config.sort_unstable_by(|a, b| a.time.cmp(&b.time));
-    match fs::write(config_path, serde_yaml::to_string(&config)?) {
+    match fs::write(config_path, serde_yaml::to_string(&config.items)?) {
         Ok(_) => {}
         Err(e) => {
             eprintln!("配置重新写入时遇到了错误: {}", e);
@@ -24,82 +25,74 @@ pub fn run(config_path: &PathBuf) -> FinalResult {
 
     println!();
 
-    let mut time = Time::default();
-    let mut next: &Item = &config[0];
-
-    update_system_time(&mut time);
-    update_next(&config, time, &mut next);
-
     loop {
-        if time == next.time {
-            for command in &next.commands {
-                if command.notify == -2 {
-                    let command = command.clone();
-                    let parameters;
-                    println!(
-                        "为命令：{}{} 发送通知",
-                        command.command,
-                        if command.parameters.is_empty() {
-                            ""
-                        } else {
-                            parameters = format!(" 参数：{}", command.parameters);
-                            &parameters
-                        }
-                    );
+        let (next, duration) = config.next();
+        thread::sleep(duration);
 
-                    thread::spawn(move || {
-                        send_notification(&command.command)
-                            .result_println(PrintingArgs::message("发送通知时遇到了问题"));
-                    });
-                } else if command.audio {
-                    let path = command.command.clone();
-                    println!("播放音频：{}", path);
+        for command in &next.commands {
+            if command.notify == -2 {
+                let command = command.clone();
+                let parameters;
+                println!(
+                    "为命令：{}{} 发送通知",
+                    command.command,
+                    if command.parameters.is_empty() {
+                        ""
+                    } else {
+                        parameters = format!(" 参数：{}", command.parameters);
+                        &parameters
+                    }
+                );
 
-                    thread::spawn(move || {
-                        play_audio(PathBuf::from(&path))
-                            .result_println(PrintingArgs::message("播放音频时遇到了问题"));
-                    });
-                } else {
-                    let command = command.clone();
-                    let parameters_string;
-                    println!(
-                        "执行命令：{}{}",
-                        command.command,
-                        if command.parameters.is_empty() {
-                            ""
-                        } else {
-                            parameters_string = format!(" 参数：{}", command.parameters);
-                            &parameters_string
-                        }
-                    );
+                thread::spawn(move || {
+                    send_notification(&command.command)
+                        .result_println(PrintingArgs::customized("发送通知时遇到了问题"));
+                });
+            } else if command.audio {
+                let path = command.command.clone();
+                println!("播放音频：{}", path);
 
-                    thread::spawn(move || {
-                        execute(
-                            &command.command,
-                            Some(
-                                command
-                                    .parameters
-                                    .split_whitespace()
-                                    .map(|s| s.to_string())
-                                    .collect(),
-                            ),
-                        )
-                            .result_println(PrintingArgs::message("执行命令时遇到了问题"));
-                    });
-                }
-                println!();
+                thread::spawn(move || {
+                    play_audio(PathBuf::from(&path))
+                        .result_println(PrintingArgs::customized("播放音频时遇到了问题"));
+                });
+            } else {
+                let command = command.clone();
+                let parameters_string;
+                println!(
+                    "执行命令：{}{}",
+                    command.command,
+                    if command.parameters.is_empty() {
+                        ""
+                    } else {
+                        parameters_string = format!(" 参数：{}", command.parameters);
+                        &parameters_string
+                    }
+                );
+
+                thread::spawn(move || {
+                    execute(
+                        &command.command,
+                        Some(
+                            command
+                                .parameters
+                                .split_whitespace()
+                                .map(|s| s.to_string())
+                                .collect(),
+                        ),
+                    )
+                    .result_println(PrintingArgs::customized("执行命令时遇到了问题"));
+                });
             }
-
-            stdout().flush()?;
-            update_next(&config, time, &mut next);
+            println!();
         }
 
-        thread::sleep(Duration::from_secs(1));
-        update_system_time(&mut time);
+        stdout().flush()?;
     }
 }
 
-fn print_config(config: &Vec<Item>) {
+fn print_config(config: &Config) {
+    let config = &config.items;
     println!("配置解析中，配置如下：");
 
     for item in config {
@@ -154,7 +147,8 @@ fn print_config(config: &Vec<Item>) {
     }
 }
 
-fn parse_config(config: &mut Vec<Item>) {
+fn parse_config(config: &mut Config) {
+    let config = &mut config.items;
     let mut result: Vec<Item> = Vec::new();
 
     for item in &mut *config {
@@ -178,29 +172,4 @@ fn parse_config(config: &mut Vec<Item>) {
     }
 
     *config = result;
-}
-
-fn update_next<'a>(config: &'a Vec<Item>, time: Time, next: &mut &'a Item) {
-    for i in 0..config.len() {
-        if config[i].time > time {
-            *next = &config[i];
-            break;
-        }
-
-        if i == config.len() - 1 {
-            *next = &config[0];
-        }
-    }
-
-    println!("下一次执行时间：{}", next.time);
-}
-
-fn update_system_time(time: &mut Time) {
-    let system_time = Local::now();
-
-    *time = Time {
-        hour: system_time.hour() as u8,
-        minute: system_time.minute() as u8,
-        second: system_time.second() as u8,
-    };
 }
