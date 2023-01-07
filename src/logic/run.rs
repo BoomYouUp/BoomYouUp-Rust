@@ -27,6 +27,7 @@ pub fn run(config_path: &PathBuf) -> FinalResult {
 
     loop {
         let (next, duration) = config.next();
+        println!("下一次执行时间：{}", next.time);
         thread::sleep(duration);
 
         for command in &next.commands {
