@@ -43,13 +43,15 @@ jobs:
           use-cross: ${{ matrix.cross }}
           command: build
           args: --verbose --target ${{ matrix.target }}${{ matrix.arg }}
+      - name: Copy completion scripts
+        shell: bash
+        run: cp target/${{ matrix.target }}/${{ matrix.type }}/build/boom_you_up_r*/out/* target/${{ matrix.target }}/${{ matrix.type }}
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}-${{ matrix.type-name }}-${{ github.sha }}
           path: |
-            target/${{ matrix.target }}/${{ matrix.type }}/boom_you_up_r*
-            target/${{ matrix.type }}/completion_scripts/*
+            target/${{ matrix.target }}/${{ matrix.type }}/*boom_you_up_r*
   build-linux:
     name: Build Linux
     runs-on: ubuntu-latest
@@ -89,13 +91,15 @@ jobs:
           use-cross: ${{ matrix.cross }}
           command: build
           args: --verbose --target ${{ matrix.target }}${{ matrix.arg }}
+      - name: Copy completion scripts
+        shell: bash
+        run: cp target/${{ matrix.target }}/${{ matrix.type }}/build/boom_you_up_r*/out/* target/${{ matrix.target }}/${{ matrix.type }}
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}-${{ matrix.type-name }}-${{ github.sha }}
           path: |
-            target/${{ matrix.target }}/${{ matrix.type }}/boom_you_up_r*
-            target/${{ matrix.type }}/completion_scripts/*
+            target/${{ matrix.target }}/${{ matrix.type }}/*boom_you_up_r*
   build-macos:
     name: Build MacOS
     runs-on: macos-latest
@@ -135,10 +139,12 @@ jobs:
           use-cross: ${{ matrix.cross }}
           command: build
           args: --verbose --target ${{ matrix.target }}${{ matrix.arg }}
+      - name: Copy completion scripts
+        shell: bash
+        run: cp target/${{ matrix.target }}/${{ matrix.type }}/build/boom_you_up_r*/out/* target/${{ matrix.target }}/${{ matrix.type }}
       - name: Upload
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}-${{ matrix.type-name }}-${{ github.sha }}
           path: |
-            target/${{ matrix.target }}/${{ matrix.type }}/boom_you_up_r*
-            target/${{ matrix.type }}/completion_scripts/*
+            target/${{ matrix.target }}/${{ matrix.type }}/*boom_you_up_r*
