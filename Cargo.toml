@@ -8,9 +8,7 @@ edition = "2021"
 [dependencies]
 chrono = { version = "0", features = ["clock"] }
 clap = { version = "4", features = ["derive", "unicode"] }
-crossterm = "0"
 notify-rust = "4"
-prettytable-rs = "0"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0"
 soloud = "1"
