@@ -5,7 +5,7 @@ use std::{fs, thread};
 
 use crate::error::{FinalResult, PrintingArgs, ResultPrinting};
 use crate::logic::functions::{execute, play_audio, send_notification};
-use crate::structs::config::{AddCommand, Command, Config, Item, Time};
+use crate::structs::config::{Config, Item, Time};
 
 pub fn run(config_path: &PathBuf) -> FinalResult {
     let mut config = Config::new(
@@ -21,7 +21,7 @@ pub fn run(config_path: &PathBuf) -> FinalResult {
     }
 
     print_config(&config);
-    parse_config(&mut config);
+    config.parse_notification();
 
     println!();
 
@@ -134,6 +134,7 @@ fn print_config(config: &Config) {
                 "{:>width$}发送通知：{}",
                 "",
                 match command.notify {
+                    -2 => "是",
                     ..=-1 => "否",
                     0 => "开始运行时",
                     _ => {
@@ -146,31 +147,4 @@ fn print_config(config: &Config) {
             );
         }
     }
-}
-
-fn parse_config(config: &mut Config) {
-    let config = &mut config.items;
-    let mut result: Vec<Item> = Vec::new();
-
-    for item in &mut *config {
-        let reference = &mut result;
-
-        reference.push(item.clone());
-
-        for j in 0..item.commands.len() {
-            if item.commands[j].notify != -1 {
-                reference.add_command_reverse(
-                    item.time - Time::second(item.commands[j].notify as usize),
-                    Command {
-                        command: item.commands[j].command.clone(),
-                        parameters: item.commands[j].parameters.clone(),
-                        notify: -2,
-                        ..item.commands[j]
-                    },
-                )
-            }
-        }
-    }
-
-    *config = result;
 }

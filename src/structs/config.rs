@@ -6,6 +6,7 @@ use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
 
+#[derive(Debug)]
 pub struct Config {
     pub items: Vec<Item>,
     next_index: usize,
@@ -30,6 +31,38 @@ impl Config {
         self.next_index = (self.next_index + 1) % self.items.len();
 
         (item, duration)
+    }
+
+    pub fn parse_notification(&mut self) {
+        let config = &self.items;
+        let mut result: Vec<Item> = Vec::new();
+
+        for item in config {
+            let reference = &mut result;
+
+            reference.push(item.clone());
+
+            for j in 0..item.commands.len() {
+                if item.commands[j].notify >= 0 {
+                    let new_time = reference.add_command_reverse(
+                        item.time
+                            - Time::second(usize::try_from(item.commands[j].notify).unwrap_or(0)),
+                        Command {
+                            command: item.commands[j].command.clone(),
+                            parameters: item.commands[j].parameters.clone(),
+                            notify: -2,
+                            ..item.commands[j]
+                        },
+                    );
+
+                    if new_time && item.time < self.items[self.next_index].time {
+                        self.next_index += 1;
+                    }
+                }
+            }
+        }
+
+        self.items = result;
     }
 }
 
@@ -233,12 +266,12 @@ pub trait AddCommand {
         time: Time,
         command: Command,
         range: R,
-    );
+    ) -> bool;
 
-    fn add_command_with_index(&mut self, time: Time, command: Command, index: usize);
+    fn add_command_with_index(&mut self, time: Time, command: Command, index: usize) -> bool;
 
-    fn add_command(&mut self, time: Time, command: Command) {
-        self.add_command_with_index(time, command, 0);
+    fn add_command(&mut self, time: Time, command: Command) -> bool {
+        self.add_command_with_index(time, command, 0)
     }
 
     fn _add_command_reverse<R: RangeBounds<usize> + Iterator<Item = usize> + DoubleEndedIterator>(
@@ -246,13 +279,13 @@ pub trait AddCommand {
         time: Time,
         command: Command,
         range: R,
-    );
+    ) -> bool;
 
-    fn add_command_reverse_with_index(&mut self, time: Time, command: Command, index: usize) {
-        self._add_command_reverse(time, command, 0..index);
+    fn add_command_reverse_with_index(&mut self, time: Time, command: Command, index: usize) -> bool {
+        self._add_command_reverse(time, command, 0..index)
     }
 
-    fn add_command_reverse(&mut self, time: Time, command: Command);
+    fn add_command_reverse(&mut self, time: Time, command: Command) -> bool;
 }
 
 impl AddCommand for Vec<Item> {
@@ -261,7 +294,7 @@ impl AddCommand for Vec<Item> {
         time: Time,
         command: Command,
         range: R,
-    ) {
+    ) -> bool {
         for i in range {
             match self[i].time.cmp(&time) {
                 Ordering::Greater => {
@@ -272,11 +305,11 @@ impl AddCommand for Vec<Item> {
                             commands: vec![command],
                         },
                     );
-                    return;
+                    return true;
                 }
                 Ordering::Equal => {
                     self[i].commands.push(command);
-                    return;
+                    return false;
                 }
                 Ordering::Less => {}
             }
@@ -285,10 +318,12 @@ impl AddCommand for Vec<Item> {
             time,
             commands: vec![command],
         });
+
+        true
     }
 
-    fn add_command_with_index(&mut self, time: Time, command: Command, index: usize) {
-        self._add_command(time, command, index..self.len());
+    fn add_command_with_index(&mut self, time: Time, command: Command, index: usize) -> bool {
+        self._add_command(time, command, index..self.len())
     }
 
     fn _add_command_reverse<
@@ -298,7 +333,7 @@ impl AddCommand for Vec<Item> {
         time: Time,
         command: Command,
         range: R,
-    ) {
+    ) -> bool {
         for i in range.rev() {
             match self[i].time.cmp(&time) {
                 Ordering::Less => {
@@ -309,11 +344,11 @@ impl AddCommand for Vec<Item> {
                             commands: vec![command],
                         },
                     );
-                    return;
+                    return true;
                 }
                 Ordering::Equal => {
                     self[i].commands.push(command);
-                    return;
+                    return false;
                 }
                 Ordering::Greater => {}
             }
@@ -325,9 +360,11 @@ impl AddCommand for Vec<Item> {
                 commands: vec![command],
             },
         );
+
+        true
     }
 
-    fn add_command_reverse(&mut self, time: Time, command: Command) {
-        self.add_command_reverse_with_index(time, command, self.len());
+    fn add_command_reverse(&mut self, time: Time, command: Command) -> bool {
+        self.add_command_reverse_with_index(time, command, self.len())
     }
 }
