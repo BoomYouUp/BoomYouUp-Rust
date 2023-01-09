@@ -1,4 +1,3 @@
-use chrono::Local;
 use std::io::{stdout, Write};
 use std::path::PathBuf;
 use std::{fs, thread};
@@ -8,10 +7,9 @@ use crate::logic::functions::{execute, play_audio, send_notification};
 use crate::structs::config::{Config, Item, Time};
 
 pub fn run(config_path: &PathBuf) -> FinalResult {
-    let mut config = Config::new(
-        serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(config_path)?)?,
-        Time::from(Local::now()),
-    );
+    let mut config = Config::new(serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(
+        config_path,
+    )?)?);
 
     match fs::write(config_path, serde_yaml::to_string(&config.items)?) {
         Ok(_) => {}

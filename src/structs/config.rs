@@ -13,15 +13,13 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(items: Vec<Item>, time: Time) -> Self {
-        let mut items = items;
+    pub fn new(mut items: Vec<Item>) -> Self {
         items.sort_unstable_by(|a, b| a.time.cmp(&b.time));
-        let index = items.iter().position(|item| item.time >= time).unwrap_or(0);
 
         Self {
             items,
-            next_index: index,
-        }
+            next_index: 0,
+        }.updated_next_index()
     }
 
     pub fn next(&mut self) -> (&Item, Duration) {
@@ -35,16 +33,14 @@ impl Config {
 
     pub fn parse_notification(&mut self) {
         let config = &self.items;
-        let mut result: Vec<Item> = Vec::new();
+        let mut result = Vec::new();
 
         for item in config {
-            let reference = &mut result;
-
-            reference.push(item.clone());
+            result.push(item.clone());
 
             for j in 0..item.commands.len() {
                 if item.commands[j].notify >= 0 {
-                    let new_time = reference.add_command_reverse(
+                    result.add_command_reverse(
                         item.time
                             - Time::second(usize::try_from(item.commands[j].notify).unwrap_or(0)),
                         Command {
@@ -54,15 +50,25 @@ impl Config {
                             ..item.commands[j]
                         },
                     );
-
-                    if new_time && item.time < self.items[self.next_index].time {
-                        self.next_index += 1;
-                    }
                 }
             }
         }
 
         self.items = result;
+        self.update_next_index();
+    }
+
+    pub fn update_next_index(&mut self) {
+        self.next_index = self
+            .items
+            .iter()
+            .position(|item| item.time > Time::from(Local::now()))
+            .unwrap_or(0);
+    }
+
+    pub fn updated_next_index(mut self) -> Self {
+        self.update_next_index();
+        self
     }
 }
 
@@ -281,7 +287,12 @@ pub trait AddCommand {
         range: R,
     ) -> bool;
 
-    fn add_command_reverse_with_index(&mut self, time: Time, command: Command, index: usize) -> bool {
+    fn add_command_reverse_with_index(
+        &mut self,
+        time: Time,
+        command: Command,
+        index: usize,
+    ) -> bool {
         self._add_command_reverse(time, command, 0..index)
     }
 
