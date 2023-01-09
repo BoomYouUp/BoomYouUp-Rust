@@ -19,7 +19,8 @@ impl Config {
         Self {
             items,
             next_index: 0,
-        }.updated_next_index()
+        }
+        .updated_next_index()
     }
 
     pub fn next(&mut self) -> (&Item, Duration) {
