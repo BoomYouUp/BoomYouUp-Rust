@@ -4,7 +4,7 @@ use std::{fs, thread};
 
 use crate::error::{FinalResult, PrintingArgs, ResultPrinting};
 use crate::logic::functions::{execute, play_audio, send_notification};
-use crate::structs::config::{Config, Item, Time};
+use crate::structs::config::{Config, Item};
 
 pub fn run(config_path: &PathBuf) -> FinalResult {
     let mut config = Config::new(serde_yaml::from_str::<Vec<Item>>(&fs::read_to_string(
@@ -18,7 +18,7 @@ pub fn run(config_path: &PathBuf) -> FinalResult {
         }
     }
 
-    print_config(&config);
+    config.print();
     config.parse_notification();
 
     println!();
@@ -87,62 +87,5 @@ pub fn run(config_path: &PathBuf) -> FinalResult {
         }
 
         stdout().flush()?;
-    }
-}
-
-fn print_config(config: &Config) {
-    let config = &config.items;
-    println!("配置解析中，配置如下：");
-
-    for item in config {
-        print!("{} ", item.time);
-
-        let mut width = 0;
-        for command in &item.commands {
-            if width != 0 {
-                println!();
-            }
-
-            println!("{:>width$}命令：{}", "", command.command, width = width);
-
-            if width == 0 {
-                width = 9;
-            }
-
-            println!(
-                "{:>width$}参数：{}",
-                "",
-                if command.parameters.is_empty() {
-                    "无"
-                } else {
-                    &command.parameters
-                },
-                width = width
-            );
-
-            println!(
-                "{:>width$}音频：{}",
-                "",
-                if command.audio { "是" } else { "否" },
-                width = width
-            );
-
-            let notify_str;
-            println!(
-                "{:>width$}发送通知：{}",
-                "",
-                match command.notify {
-                    -2 => "是",
-                    ..=-1 => "否",
-                    0 => "开始运行时",
-                    _ => {
-                        let time = item.time - Time::second(command.notify as usize);
-                        notify_str = format!("开始运行的 {} 秒之前，即 {}", command.notify, time);
-                        &notify_str
-                    }
-                },
-                width = width
-            );
-        }
     }
 }

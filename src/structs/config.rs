@@ -59,6 +59,64 @@ impl Config {
         self.update_next_index();
     }
 
+    pub fn print(&self) {
+        let items = &self.items;
+        println!("配置解析中，配置如下：");
+
+        for item in items {
+            print!("{} ", item.time);
+
+            let mut width = 0;
+            for command in &item.commands {
+                if width != 0 {
+                    println!();
+                }
+
+                println!("{:>width$}命令：{}", "", command.command, width = width);
+
+                if width == 0 {
+                    width = 9;
+                }
+
+                println!(
+                    "{:>width$}参数：{}",
+                    "",
+                    if command.parameters.is_empty() {
+                        "无"
+                    } else {
+                        &command.parameters
+                    },
+                    width = width
+                );
+
+                println!(
+                    "{:>width$}音频：{}",
+                    "",
+                    if command.audio { "是" } else { "否" },
+                    width = width
+                );
+
+                let notify_str;
+                println!(
+                    "{:>width$}发送通知：{}",
+                    "",
+                    match command.notify {
+                        -2 => "是",
+                        ..=-1 => "否",
+                        0 => "开始运行时",
+                        _ => {
+                            let time = item.time - Time::second(command.notify as usize);
+                            notify_str =
+                                format!("开始运行的 {} 秒之前，即 {}", command.notify, time);
+                            &notify_str
+                        }
+                    },
+                    width = width
+                );
+            }
+        }
+    }
+
     pub fn update_next_index(&mut self) {
         self.next_index = self
             .items
