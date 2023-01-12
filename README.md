@@ -1,10 +1,14 @@
 # BoomYouUpR 炸你起床R
 
-[![License](https://img.shields.io/github/license/xfqwdsj/BoomYouUpR)](https://www.gnu.org/licenses/gpl-3.0.html) [![Build](https://github.com/xfqwdsj/BoomYouUpR/actions/workflows/build.yaml/badge.svg)](https://github.com/xfqwdsj/BoomYouUpR/actions/workflows/build.yaml) ![GitHub release](https://img.shields.io/github/v/release/xfqwdsj/BoomYouUpR?sort=semver)
+[![License](https://img.shields.io/github/license/BoomYouUp/BoomYouUp-Rust)](https://www.gnu.org/licenses/gpl-3.0.html) [![Build](https://github.com/BoomYouUp/BoomYouUp-Rust/actions/workflows/build.yaml/badge.svg)](https://github.com/BoomYouUp/BoomYouUp-Rust/actions/workflows/build.yaml) [![GitHub release](https://img.shields.io/github/v/release/BoomYouUp/BoomYouUp-Rust?sort=semver)](https://github.com/BoomYouUp/BoomYouUp-Rust/releases/latest)
+
+## 说明
+
+本仓库迁移自我（[xfqwdsj](https://github.com/xfqwdsj)）的个人账号，原地址为 <https://github.com/xfqwdsj/BoomYouUpR>，`v1.0.0` 及更早的版本的 CI 构建与发布版本均在原仓库。
 
 ## 介绍
 
-`R -> Rust` ，本项目为 [BoomYouUp](https://github.com/xfqwdsj/BoomYouUp) 用 Rust 语言重新编写的版本。该版本相对原始版本支持了音频播放。~~绝对不是因为我不会设置 C++ 库。~~
+`R -> Rust` ，本项目为 [BoomYouUp-Cpp](https://github.com/BoomYouUp/BoomYouUp-Cpp) 用 Rust 语言重新编写的版本。该版本相对原始版本支持了音频播放。~~绝对不是因为我不会设置 C++ 库。~~
 
 本程序可以通过配置执行简单的自动任务。
 
@@ -124,8 +128,7 @@ BoomYouUpR 在 2022 年的最后一天（12-31）支持了 Linux 系统，这是
 
 ## 示例配置
 
-1. [南科大附中打铃](configuration_examples/hsas_ringing)
-2. 完善中...
+见 [示例配置](configuration_examples)。
 
 ## 许可
 

@@ -1,0 +1,3 @@
+[submodule "configuration_examples/ringing"]
+	path = configuration_examples/ringing
+	url = git@github.com:BoomYouUp-Examples/Ringing.git
