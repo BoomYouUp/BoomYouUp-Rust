@@ -1,7 +1,6 @@
 use chrono::{Local, Timelike};
 use std::path::PathBuf;
 use std::thread;
-use std::time::Duration;
 
 use notify_rust::Notification;
 use opener::open;
@@ -23,9 +22,7 @@ pub fn play_audio(path: PathBuf) -> NormalResult {
     wav.load(path)?;
     player.play(&wav);
 
-    while player.active_voice_count() > 0 {
-        thread::sleep(Duration::from_millis(100));
-    }
+    while player.active_voice_count() > 0 {}
 
     Ok(())
 }
