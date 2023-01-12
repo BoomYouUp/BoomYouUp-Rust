@@ -33,12 +33,12 @@ pub fn run(config_path: &PathBuf) -> FinalResult {
                 let command = command.clone();
                 let parameters;
                 println!(
-                    "为命令：{}{} 发送通知",
+                    "为命令 {}{}发送通知",
                     command.command,
                     if command.parameters.is_empty() {
-                        ""
+                        " "
                     } else {
-                        parameters = format!(" 参数：{}", command.parameters);
+                        parameters = format!("（参数：{}）", command.parameters);
                         &parameters
                     }
                 );
@@ -49,7 +49,7 @@ pub fn run(config_path: &PathBuf) -> FinalResult {
                 });
             } else if command.audio {
                 let path = command.command.clone();
-                println!("播放音频：{}", path);
+                println!("播放音频 {}", path);
 
                 thread::spawn(move || {
                     play_audio(PathBuf::from(&path))
@@ -59,12 +59,12 @@ pub fn run(config_path: &PathBuf) -> FinalResult {
                 let command = command.clone();
                 let parameters_string;
                 println!(
-                    "执行命令：{}{}",
+                    "执行命令 {}{}",
                     command.command,
                     if command.parameters.is_empty() {
                         ""
                     } else {
-                        parameters_string = format!(" 参数：{}", command.parameters);
+                        parameters_string = format!("（参数：{}）", command.parameters);
                         &parameters_string
                     }
                 );
