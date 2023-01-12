@@ -1,6 +1,6 @@
 [package]
 name = "boom_you_up_r"
-version = "1.0.0-alpha02"
+version = "1.0.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
